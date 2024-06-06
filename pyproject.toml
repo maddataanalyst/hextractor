@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.10"
 torch-geometric = "^2.5.3"
 torch = "^2.3.1"
+pydantic = "^2.7.3"
 
 [tool.poetry.group.research]
 optional = true
