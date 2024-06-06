@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "hextractor"
+version = "0.1.0"
+description = ""
+authors = ["Filip <filip.wojcik@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch-geometric = "^2.5.3"
+torch = "^2.3.1"
+
+[tool.poetry.group.research]
+optional = true
+
+[tool.poetry.group.research.dependencies]
+jupyterlab = "^4.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
