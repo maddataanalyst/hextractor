@@ -2,7 +2,7 @@
 """
 
 from abc import ABC
-from typing import Tuple
+from typing import Tuple, Literal
 from pydantic import BaseModel
 
 import numpy as np
@@ -10,6 +10,12 @@ import torch as th
 import pandas as pd
 import torch_geometric.data as pyg_data
 
+
+TYPE_NAME_2_TORCH = {
+    'float': th.float,
+    'long': th.long,
+    'int': th.int
+}
 
 class NodeTypeParams(BaseModel):
     """Node type specs, used during the extraction process"""
@@ -20,6 +26,7 @@ class NodeTypeParams(BaseModel):
     target_col: str = None
     multivalue_source: bool = False
     attributes: Tuple[str, ...] = tuple()
+    attr_type: Literal['float', 'long'] = 'float'
 
 
 class EdgeTypeParams(BaseModel):
@@ -30,6 +37,7 @@ class EdgeTypeParams(BaseModel):
     target_name: str
     multivalue_source: bool = False
     attributes: Tuple[str, ...] = tuple()
+    attr_type: Literal['float', 'long', 'int'] = 'float'
 
 
 class DataSource(ABC):
@@ -89,6 +97,7 @@ class DataFrameSource(DataSource):
         edges = {}
         edge_attrs = {}
         for node_param in self.node_params:
+            
             node_df = (
                 self.data_frame[[node_param.id_col, *node_param.attributes]]
                 .drop_duplicates()
@@ -105,7 +114,7 @@ class DataFrameSource(DataSource):
 
             # TODO: later on add various types per each column: some might be required to be floats, some others: long (e.g. for embeddings)
             node_data[node_param.node_type_name] = th.tensor(
-                node_df.drop(columns=node_param.id_col).values, dtype=th.float32
+                node_df.drop(columns=node_param.id_col).values, dtype=TYPE_NAME_2_TORCH[node_param.attr_type]
             )
 
             if node_param.target_col:
@@ -126,12 +135,14 @@ class DataFrameSource(DataSource):
             ] = th.tensor(
                 source_target_df[[source_id_col, target_id_col]].values, dtype=th.long
             ).t()
-            edge_attrs[
-                (edge_info.source_name, edge_info.edge_type_name, edge_info.target_name)
-            ] = th.tensor(
-                source_target_df.drop(columns=[source_id_col, target_id_col]).values,
-                dtype=th.float32,
-            )
+
+            if edge_info.attributes:
+                edge_attrs[
+                    (edge_info.source_name, edge_info.edge_type_name, edge_info.target_name)
+                ] = th.tensor(
+                    source_target_df[list(edge_info.attributes)].values,
+                    dtype=TYPE_NAME_2_TORCH[edge_info.attr_type]
+                )
 
         hetero_data = pyg_data.HeteroData()
         for node_type in node_data.keys():
