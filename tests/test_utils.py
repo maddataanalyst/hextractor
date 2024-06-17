@@ -10,8 +10,8 @@ import hextractor.utils as utils
 def company_has_employee_df():
     df = pd.DataFrame(
         [
-            (1, 100, 1000, 1, 0, 25, 0),
-            (1, 100, 1000, 2, 1, 35, 1),
+            (1, 100, 1000, 0, 0, 25, 0),
+            (1, 100, 1000, 1, 1, 35, 1),
             (1, 100, 1000, 3, 3, 45, 0),
             (2, 5000, 100000, 4, 1, 18, 1),
             (2, 5000, 100000, 5, 1, 20, 1),
@@ -48,7 +48,7 @@ def test_correct_hetero_graph_construction_from_id(
         source_name="df",
         id_col="employee_id",
         attributes=("employee_occupation", "employee_age"),
-        target_name="employee_promotion",
+        target_col="employee_promotion",
         attr_type='long'
     )
 
@@ -64,9 +64,9 @@ def test_correct_hetero_graph_construction_from_id(
     )
 
     expected_hetero_g = pyg_data.HeteroData()
-    expected_hetero_g['company'].x = th.tensor(np.array([[100, 1000], [5000, 100000]]))
-    expected_hetero_g['employee'].x = th.tensor(np.array([[0, 25], [1, 35], [3, 45], [1, 18], [1, 20], [4, 31]]))
-    expected_hetero_g['company', 'has', 'employee'].edge_index = th.tensor([[1, 1, 1, 2, 2, 2], [1, 2, 3, 4, 5, 6]])
+    expected_hetero_g['company'].x = th.tensor(np.array([[0, 0], [100, 1000], [5000, 100000]]))
+    expected_hetero_g['employee'].x = th.tensor(np.array([[0, 25], [1, 35], [0, 0], [3, 45], [1, 18], [1, 20], [4, 31]]))
+    expected_hetero_g['company', 'has', 'employee'].edge_index = th.tensor([[1, 1, 1, 2, 2, 2], [0, 1, 3, 4, 5, 6]])
 
     # when
     hetero_g = df_source_specs.extract_using_id()
@@ -76,6 +76,10 @@ def test_correct_hetero_graph_construction_from_id(
     expected_hetero_g.edge_types == hetero_g.edge_types
 
     for node_type in hetero_g.node_types:
+        if node_type == 'employee':
+            print(expected_hetero_g[node_type].x)
+            print("---")
+            print(hetero_g[node_type].x)
         assert th.all(expected_hetero_g[node_type].x == hetero_g[node_type].x)
 
     for edge_type in hetero_g.edge_types:
