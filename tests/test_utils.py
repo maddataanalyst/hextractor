@@ -36,20 +36,17 @@ def test_correct_hetero_graph_construction_from_id(
     # Given
     company_node_params = utils.NodeTypeParams(
         node_type_name="company",
-        source_name="df",
         id_col="company_id",
         attributes=("company_employees", "company_revenue"),
-        attr_type='float'
-
+        attr_type="float",
     )
 
     employee_node_params = utils.NodeTypeParams(
         node_type_name="employee",
-        source_name="df",
         id_col="employee_id",
         attributes=("employee_occupation", "employee_age"),
         target_col="employee_promotion",
-        attr_type='long'
+        attr_type="long",
     )
 
     company_has_emp_edge_params = utils.EdgeTypeParams(
@@ -64,23 +61,70 @@ def test_correct_hetero_graph_construction_from_id(
     )
 
     expected_hetero_g = pyg_data.HeteroData()
-    expected_hetero_g['company'].x = th.tensor(np.array([[0, 0], [100, 1000], [5000, 100000]]))
-    expected_hetero_g['employee'].x = th.tensor(np.array([[0, 25], [1, 35], [0, 0], [3, 45], [1, 18], [1, 20], [4, 31]]))
-    expected_hetero_g['company', 'has', 'employee'].edge_index = th.tensor([[1, 1, 1, 2, 2, 2], [0, 1, 3, 4, 5, 6]])
+    expected_hetero_g["company"].x = th.tensor(
+        np.array([[0, 0], [100, 1000], [5000, 100000]])
+    )
+    expected_hetero_g["employee"].x = th.tensor(
+        np.array([[0, 25], [1, 35], [0, 0], [3, 45], [1, 18], [1, 20], [4, 31]])
+    )
+    expected_hetero_g["company", "has", "employee"].edge_index = th.tensor(
+        [[1, 1, 1, 2, 2, 2], [0, 1, 3, 4, 5, 6]]
+    )
 
     # when
     hetero_g = df_source_specs.extract_using_id()
 
     # then
-    expected_hetero_g.node_types == hetero_g.node_types
-    expected_hetero_g.edge_types == hetero_g.edge_types
+    assert expected_hetero_g.node_types == hetero_g.node_types
+    assert expected_hetero_g.edge_types == hetero_g.edge_types
 
     for node_type in hetero_g.node_types:
-        if node_type == 'employee':
+        if node_type == "employee":
             print(expected_hetero_g[node_type].x)
             print("---")
             print(hetero_g[node_type].x)
         assert th.all(expected_hetero_g[node_type].x == hetero_g[node_type].x)
 
     for edge_type in hetero_g.edge_types:
-        assert th.all(expected_hetero_g[edge_type].edge_index == hetero_g[edge_type].edge_index)
+        assert th.all(
+            expected_hetero_g[edge_type].edge_index == hetero_g[edge_type].edge_index
+        )
+
+
+def test_all_attributes_should_be_numeric(company_has_employee_df: pd.DataFrame):
+    # given
+    fake_df = company_has_employee_df.copy()
+    fake_df["employee_occupation"] = ["develpoer"] * 6
+
+    company_node_params = utils.NodeTypeParams(
+        node_type_name="company",
+        id_col="company_id",
+        attributes=("company_employees", "company_revenue"),
+        attr_type="float",
+    )
+
+    employee_node_params = utils.NodeTypeParams(
+        node_type_name="employee",
+        id_col="employee_id",
+        attributes=("employee_occupation", "employee_age"),
+        target_col="employee_promotion",
+        attr_type="long",
+    )
+
+    company_has_emp_edge_params = utils.EdgeTypeParams(
+        edge_type_name="has", source_name="company", target_name="employee"
+    )
+
+    df_source_specs = utils.DataFrameSource(
+        name="df1",
+        node_params=(company_node_params, employee_node_params),
+        edge_params=(company_has_emp_edge_params,),
+        data_frame=fake_df,
+    )
+
+    # when
+    with pytest.raises(ValueError) as e:
+        df_source_specs.extract_using_id()
+
+    # then
+    assert "Not all attributes are numeric" in str(e.value)
