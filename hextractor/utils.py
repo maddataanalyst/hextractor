@@ -1,7 +1,7 @@
 """A module contains utility classes and tools, needed to work with the hextractor package."""
 
 from abc import ABC
-from typing import Tuple, Literal
+from typing import Tuple, Literal, Dict
 from pydantic import BaseModel
 
 import numpy as np
@@ -30,9 +30,80 @@ class EdgeTypeParams(BaseModel):
     edge_type_name: str
     source_name: str
     target_name: str
+    target_col: str = None
     multivalue_source: bool = False
     attributes: Tuple[str, ...] = tuple()
     attr_type: Literal["float", "long", "int"] = "float"
+
+
+class NodeData:
+    """Node data, extracted from the source"""
+
+    def __init__(
+        self, node_type_name: str, node_data: th.Tensor, target_data: th.Tensor = None
+    ):
+        self.node_type_name = node_type_name
+        self.node_data = node_data
+        self.target_data = target_data
+
+    def has_target(self) -> bool:
+        return self.target_data is not None
+
+
+class NodesData:
+    """Dictionary of multiple node data"""
+
+    def __init__(self, nodes_data: Dict[str, NodeData]):
+        self.nodes_data = nodes_data
+
+    def has_node(self, node_type) -> bool:
+        return node_type in self.nodes_data
+
+    def get_node(self, node_type) -> NodeData:
+        return self.nodes_data[node_type]
+
+
+class EdgeData:
+    """Edge data, extracted from the source"""
+
+    def __init__(
+        self,
+        source_name: str,
+        edge_type_name: str,
+        target_name: str,
+        edge_index: th.Tensor,
+        edge_attr: th.Tensor = None,
+        target_data: th.Tensor = None,
+    ):
+        self.source_name = source_name
+        self.edge_type_name = edge_type_name
+        self.target_name = target_name
+        self.edge_index = edge_index
+        self.edge_attr = edge_attr
+        self.target_data = target_data
+
+    @property
+    def edge_name(self) -> Tuple[str, str, str]:
+        return self.source_name, self.edge_type_name, self.target_name
+
+    def has_target(self) -> bool:
+        return self.target_data is not None
+
+    def has_edge_attr(self) -> bool:
+        return self.edge_attr is not None
+
+
+class EdgesData:
+    """Dictionary of multiple edge data"""
+
+    def __init__(self, edges_data: Dict[Tuple[str, str, str], EdgeData]):
+        self.edges_data = edges_data
+
+    def has_edge(self, edge_type: Tuple[str, str, str]) -> bool:
+        return edge_type in self.edges_data
+
+    def get_edge(self, edge_type: Tuple[str, str, str]) -> EdgeData:
+        return self.edges_data[edge_type]
 
 
 class DataSource(ABC):
@@ -72,6 +143,16 @@ class DataSource(ABC):
     def extract(self):
         raise NotImplementedError("Method 'extract' must be implemented in a subclass")
 
+    def extract_nodes_data(self) -> NodesData:
+        raise NotImplementedError(
+            "Method 'extract_node_data' must be implemented in a subclass"
+        )
+
+    def extract_edges_data(self) -> EdgesData:
+        raise NotImplementedError(
+            "Method 'extract_edge_data' must be implemented in a subclass"
+        )
+
 
 class DataFrameSource(DataSource):
     def __init__(
@@ -84,7 +165,9 @@ class DataFrameSource(DataSource):
         super().__init__(name, node_params, edge_params)
         self.data_frame = data_frame
 
-    def process_node_param(self, node_param: NodeTypeParams):
+    def process_node_param(
+        self, node_param: NodeTypeParams
+    ) -> Tuple[th.Tensor, th.Tensor]:
         # Step 1: Get the node-specific data, de-duplicate and sort by id
         # Dim: (Batch size, Number of attributes + id + target(if specified))
         target_col_lst = [node_param.target_col] if node_param.target_col else []
@@ -164,6 +247,58 @@ class DataFrameSource(DataSource):
             )
 
         return all_node_attrs_tensor, node_targets
+
+    def extract_nodes_data(self) -> NodesData:
+        node_results = {}
+        for node_param in self.node_params:
+            node_type_data, node_type_targets = self.process_node_param(node_param)
+            node_type_targets = None
+            if node_param.target_col:
+                node_type_targets = node_type_targets
+            node_results[node_param.node_type_name] = NodeData(
+                node_param.node_type_name, node_type_data, node_type_targets
+            )
+        return NodesData(node_results)
+
+    def extract_edges_data(self) -> EdgesData:
+        edges_results = {}
+        for edge_info in self.edge_params:
+            source_id_col = self.nodetype2id[edge_info.source_name]
+            target_id_col = self.nodetype2id[edge_info.target_name]
+            source_target_df = (
+                self.data_frame[[source_id_col, target_id_col, *edge_info.attributes]]
+                .drop_duplicates()
+                .sort_values(by=[source_id_col, target_id_col])
+            )
+            edge_index = th.tensor(
+                source_target_df[[source_id_col, target_id_col]].values, dtype=th.long
+            ).t()
+
+            key = (
+                edge_info.source_name,
+                edge_info.edge_type_name,
+                edge_info.target_name,
+            )
+            attrs = None
+            targets = None
+            if edge_info.attributes:
+                attrs = th.tensor(
+                    source_target_df[list(edge_info.attributes)].values,
+                    dtype=TYPE_NAME_2_TORCH[edge_info.attr_type],
+                )
+            if edge_info.target_col:
+                targets = th.tensor(
+                    source_target_df[edge_info.target_col].values, dtype=th.long
+                )
+            edges_results[key] = EdgeData(
+                edge_info.source_name,
+                edge_info.edge_type_name,
+                edge_info.target_name,
+                edge_index,
+                attrs,
+                targets,
+            )
+        return EdgesData(edges_results)
 
     def extract_using_id(self) -> pyg_data.HeteroData:
         node_data = {}

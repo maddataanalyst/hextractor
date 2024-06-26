@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import torch_geometric.data as pyg_data
 import hextractor.utils as utils
+import hextractor.extraction as extr
 
 
 @pytest.fixture
@@ -72,7 +73,7 @@ def test_correct_hetero_graph_construction_from_id(
     )
 
     # when
-    hetero_g = df_source_specs.extract_using_id()
+    hetero_g = extr.extract_data_from_sources((df_source_specs,))
 
     # then
     assert expected_hetero_g.node_types == hetero_g.node_types
@@ -124,7 +125,7 @@ def test_all_attributes_should_be_numeric(company_has_employee_df: pd.DataFrame)
 
     # when
     with pytest.raises(ValueError) as e:
-        df_source_specs.extract_using_id()
+        extr.extract_data_from_sources((df_source_specs,))
 
     # then
     assert "Not all attributes are numeric" in str(e.value)
