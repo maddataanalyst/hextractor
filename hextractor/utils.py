@@ -7,7 +7,6 @@ from pydantic import BaseModel
 import numpy as np
 import torch as th
 import pandas as pd
-import torch_geometric.data as pyg_data
 
 
 TYPE_NAME_2_TORCH = {"float": th.float, "long": th.long, "int": th.int}
@@ -299,55 +298,3 @@ class DataFrameSource(DataSource):
                 targets,
             )
         return EdgesData(edges_results)
-
-    def extract_using_id(self) -> pyg_data.HeteroData:
-        node_data = {}
-        node_targets = {}
-        edges = {}
-        edge_attrs = {}
-        for node_param in self.node_params:
-            node_type_data, node_type_targets = self.process_node_param(node_param)
-            node_data[node_param.node_type_name] = node_type_data
-            if node_param.target_col:
-                node_targets[node_param.node_type_name] = node_type_targets
-
-        # TODO: extract edge info to a separate method + add validation of max values
-        for edge_info in self.edge_params:
-            source_id_col = self.nodetype2id[edge_info.source_name]
-            target_id_col = self.nodetype2id[edge_info.target_name]
-            source_target_df = (
-                self.data_frame[[source_id_col, target_id_col, *edge_info.attributes]]
-                .drop_duplicates()
-                .sort_values(by=[source_id_col, target_id_col])
-            )
-            edges[
-                (edge_info.source_name, edge_info.edge_type_name, edge_info.target_name)
-            ] = th.tensor(
-                source_target_df[[source_id_col, target_id_col]].values, dtype=th.long
-            ).t()
-
-            if edge_info.attributes:
-                edge_attrs[
-                    (
-                        edge_info.source_name,
-                        edge_info.edge_type_name,
-                        edge_info.target_name,
-                    )
-                ] = th.tensor(
-                    source_target_df[list(edge_info.attributes)].values,
-                    dtype=TYPE_NAME_2_TORCH[edge_info.attr_type],
-                )
-
-        hetero_data = pyg_data.HeteroData()
-        for node_type, node_attrs in node_data.items():
-            hetero_data[node_type].x = node_attrs
-            if node_type in node_targets:
-                hetero_data[node_type].y = node_targets[node_type]
-
-        for edge, edge_tensor in edges.items():
-            hetero_data[edge].edge_index = edge_tensor
-
-            if edge in edge_attrs:
-                hetero_data[edge].edge_attr = edge_attrs[edge]
-
-        return hetero_data

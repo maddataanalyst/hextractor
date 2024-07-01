@@ -129,3 +129,76 @@ def test_all_attributes_should_be_numeric(company_has_employee_df: pd.DataFrame)
 
     # then
     assert "Not all attributes are numeric" in str(e.value)
+
+
+def test_too_few_receiver_nodes_error():
+    # given
+    hg = pyg_data.HeteroData()
+    hg["node_a"].x = th.tensor(
+        [
+            [1, 2],
+            [3, 4],
+        ]
+    )
+    hg["node_b"].x = th.tensor(
+        [
+            [1, 2],
+        ]
+    )
+    hg["node_a", "sends", "node_b"].edge_index = th.tensor([[0, 1, 1], [0, 0, 1]])
+
+    # when
+    with pytest.raises(ValueError) as e:
+        extr.validate_consistency(hg)
+
+    # then
+    assert "Node type node_b has too few nodes" in str(e.value)
+
+
+def test_too_few_sender_nodes_error():
+    # given
+    hg = pyg_data.HeteroData()
+    hg["node_a"].x = th.tensor(
+        [
+            [1, 2],
+            [3, 4],
+        ]
+    )
+    hg["node_b"].x = th.tensor(
+        [
+            [1, 2],
+        ]
+    )
+    hg["node_a", "sends", "node_b"].edge_index = th.tensor([[0, 1, 2], [0, 0, 0]])
+
+    # when
+    with pytest.raises(ValueError) as e:
+        extr.validate_consistency(hg)
+
+    # then
+    assert "Node type node_a has too few nodes" in str(e.value)
+
+
+def test_missing_nodetypes():
+    # given
+    hg = pyg_data.HeteroData()
+    hg["node_a"].x = th.tensor(
+        [
+            [1, 2],
+            [3, 4],
+        ]
+    )
+    hg["node_b"].x = th.tensor(
+        [
+            [1, 2],
+        ]
+    )
+    hg["node_a", "sends", "node_b"].edge_index = th.tensor([[0, 1], [0, 0]])
+    hg["node_x", "sends", "node_a"].edge_index = th.tensor([[0, 1], [0, 0]])
+
+    # when
+    with pytest.raises(ValueError) as e:
+        extr.validate_consistency(hg)
+
+    # then
+    assert "Node type node_x is missing" in str(e.value)

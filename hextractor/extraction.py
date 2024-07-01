@@ -68,4 +68,38 @@ def extract_data_from_sources(
         if edge_info.has_target:
             hetero_data[edge].y = edge_info.target_data
 
+    validate_consistency(hetero_data)
     return hetero_data
+
+
+def validate_consistency(hetero_g: pyg_data.HeteroData):
+    """Validates the consistency of the constructed heterogeneous graph data.
+    Checks if e.g. the number of nodes and edges is consistent with the specs.
+
+    Parameters
+    ----------
+    hetero_g : pyg_data.HeteroData
+        Constructed heterogeneous graph data.
+
+    require_all_node_attributes : bool
+        If True, checks if all node types (event those present only in the
+        edge index dictionary) have the 'x' attribute.
+    """
+    for src, rel, dst in hetero_g.edge_types:
+        if src not in hetero_g.node_types:
+            raise ValueError(f"Node type {src} is missing.")
+        if dst not in hetero_g.node_types:
+            raise ValueError(f"Node type {dst} is missing.")
+        edge_index = hetero_g[(src, rel, dst)].edge_index
+        src_idx_max = edge_index[0].max()
+        dst_idx_max = edge_index[1].max()
+
+        if src_idx_max >= hetero_g[src].x.size(0):
+            raise ValueError(
+                f"Node type {src} has too few nodes. Num nodes: {hetero_g[src].x.size(0)}, max index: {src_idx_max}"
+            )
+
+        if dst_idx_max >= hetero_g[dst].x.size(0):
+            raise ValueError(
+                f"Node type {dst} has too few nodes. Num nodes: {hetero_g[dst].x.size(0)}, max index: {dst_idx_max}"
+            )
