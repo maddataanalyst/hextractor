@@ -2,7 +2,7 @@
 
 from abc import ABC
 from typing import Tuple, Literal, Dict
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 import numpy as np
 import torch as th
@@ -21,6 +21,18 @@ class NodeTypeParams(BaseModel):
     multivalue_source: bool = False
     attributes: Tuple[str, ...] = tuple()
     attr_type: Literal["float", "long"] = "float"
+
+    @model_validator(mode="after")
+    def check_multivalue_source(self):
+        if self.multivalue_source:
+            if not self.id_col:
+                raise ValueError(
+                    "Multivalue source requires the id column to be specified"
+                )
+            if len(self.attributes) > 0:
+                raise ValueError("Multivalue source does not support attributes")
+            if self.target_col:
+                raise ValueError("Multivalue source does not support target column")
 
 
 class EdgeTypeParams(BaseModel):
@@ -134,10 +146,14 @@ class DataSource(ABC):
     def _build_helper_lookups(self):
         self.nodetype2id = {}
         self.id2nodetype = {}
+        self.nodetype2multival = {}
         for node_param in self.node_params:
             if node_param.id_col:
                 self.nodetype2id[node_param.node_type_name] = node_param.id_col
                 self.id2nodetype[node_param.id_col] = node_param.node_type_name
+                self.nodetype2multival[node_param.node_type_name] = (
+                    node_param.multivalue_source
+                )
 
     def extract(self):
         raise NotImplementedError("Method 'extract' must be implemented in a subclass")
@@ -164,7 +180,18 @@ class DataFrameSource(DataSource):
         super().__init__(name, node_params, edge_params)
         self.data_frame = data_frame
 
-    def process_node_param(
+    def _process_multivalue_node(
+        self, node_param: NodeTypeParams
+    ) -> Tuple[th.Tensor, th.Tensor]:
+        source_column = self.data_frame[node_param.id_col]
+        all_possible_values = source_column.explode().unique().astype(int)
+        if all_possible_values.dtype == "object":
+            raise ValueError("Multi-value source must have a numeric unique values!")
+        max_val = all_possible_values.max()
+        unique_ids_tensor = th.arange(max_val + 1)
+        return unique_ids_tensor, None
+
+    def _process_standard_node_with_attributes(
         self, node_param: NodeTypeParams
     ) -> Tuple[th.Tensor, th.Tensor]:
         # Step 1: Get the node-specific data, de-duplicate and sort by id
@@ -234,11 +261,12 @@ class DataFrameSource(DataSource):
             0, indices_expanded, node_attrs_tensor
         )
 
-        # Dim: (max node id + 1)
-        node_targets = th.zeros((max_node_id + 1)).to(th.long)
+        node_targets = None
 
         # Step 3: If target column is specified, extract the target values
         if node_param.target_col:
+            # Dim: (max node id + 1)
+            node_targets = th.zeros((max_node_id + 1)).to(th.long)
             node_targets.scatter_add_(
                 0,
                 node_indices_observed,
@@ -247,37 +275,128 @@ class DataFrameSource(DataSource):
 
         return all_node_attrs_tensor, node_targets
 
+    def process_node_param(
+        self, node_param: NodeTypeParams
+    ) -> Tuple[th.Tensor, th.Tensor]:
+        if node_param.multivalue_source:
+            return self._process_multivalue_node(node_param)
+        return self._process_standard_node_with_attributes(node_param)
+
     def extract_nodes_data(self) -> NodesData:
         node_results = {}
         for node_param in self.node_params:
             node_type_data, node_type_targets = self.process_node_param(node_param)
-            node_type_targets = None
-            if node_param.target_col:
-                node_type_targets = node_type_targets
             node_results[node_param.node_type_name] = NodeData(
                 node_param.node_type_name, node_type_data, node_type_targets
             )
         return NodesData(node_results)
+
+    def _extract_multivalue_edge_index(
+        self, edge_info: EdgeTypeParams, multivalue_col: str
+    ) -> th.Tensor:
+        """Extracts the edge index for the multivalue source. Only one
+        of the source or target can be multivalue.
+
+        Parameters
+        ----------
+        edge_info : EdgeTypeParams
+            Specification of the edge type.
+
+        multivalue_col: str
+            Name of the multivalue column.
+
+        Returns
+        -------
+        th.Tensor
+            Edge index tensor: dim: (2, Number of edges)
+        """
+        source_id_col = self.nodetype2id[edge_info.source_name]
+        target_id_col = self.nodetype2id[edge_info.target_name]
+
+        source_to_target_df = (
+            self.data_frame[[source_id_col, target_id_col]]
+            .explode(multivalue_col)
+            .drop_duplicates()
+            .dropna()
+        ).sort_values(by=[source_id_col, target_id_col])
+        edge_index = th.tensor(
+            source_to_target_df.values.astype(int), dtype=th.long
+        ).t()
+
+        return edge_index
+
+    def _extract_edge_index(
+        self,
+        edge_info: EdgeTypeParams,
+        source_id_col: str,
+        target_id_col: str,
+    ) -> Tuple[th.Tensor, pd.DataFrame]:
+        """Extracts edge index from either:
+        1. single-value column to single-value column
+        2. multi-value columns to/from single-value column
+
+        Parameters
+        ----------
+        edge_info : EdgeTypeParams
+            Specification of the edge type.
+        source_id_col : str
+            Name of the source column.
+        target_id_col : str
+            Name of the target column.
+
+        Returns
+        -------
+        Tuple[th.Tensor, pd.DataFrame]
+            Tuple with:
+            1. Edge index tensor. Dim: (2, Number of edges)
+            2. Edge attributes DataFrame.
+        """
+        multival_col = (
+            source_id_col
+            if self.nodetype2multival[edge_info.source_name]
+            else target_id_col
+        )
+        source_target_df = (
+            self.data_frame[[source_id_col, target_id_col, *edge_info.attributes]]
+            .explode(multival_col)
+            .drop_duplicates()
+            .sort_values(by=[source_id_col, target_id_col])
+        )
+        if (
+            self.nodetype2multival[edge_info.source_name]
+            or self.nodetype2multival[edge_info.target_name]
+        ):
+            edge_index = self._extract_multivalue_edge_index(edge_info, multival_col)
+        else:
+            edge_index = th.tensor(
+                source_target_df[[source_id_col, target_id_col]].values,
+                dtype=th.long,
+            ).t()
+        return edge_index, source_target_df
 
     def extract_edges_data(self) -> EdgesData:
         edges_results = {}
         for edge_info in self.edge_params:
             source_id_col = self.nodetype2id[edge_info.source_name]
             target_id_col = self.nodetype2id[edge_info.target_name]
-            source_target_df = (
-                self.data_frame[[source_id_col, target_id_col, *edge_info.attributes]]
-                .drop_duplicates()
-                .sort_values(by=[source_id_col, target_id_col])
-            )
-            edge_index = th.tensor(
-                source_target_df[[source_id_col, target_id_col]].values, dtype=th.long
-            ).t()
 
             key = (
                 edge_info.source_name,
                 edge_info.edge_type_name,
                 edge_info.target_name,
             )
+            if (
+                self.nodetype2multival[edge_info.source_name]
+                and self.nodetype2multival[edge_info.target_name]
+            ):
+                raise NotImplementedError(
+                    "Multivalue source for both source and target is not allowed"
+                )
+
+            edge_index, source_target_df = self._extract_edge_index(
+                edge_info, source_id_col, target_id_col
+            )
+
             attrs = None
             targets = None
             if edge_info.attributes:
