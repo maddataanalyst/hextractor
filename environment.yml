@@ -1,0 +1,6 @@
+name: hextractor
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.9
+  - poetry=1.8.3

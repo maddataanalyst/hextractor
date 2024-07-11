@@ -20,6 +20,7 @@ optional = true
 
 [tool.poetry.group.research.dependencies]
 jupyterlab = "^4.2.1"
+rootutils = "^1.0.7"
 
 
 [tool.poetry.group.dev.dependencies]

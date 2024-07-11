@@ -16,3 +16,36 @@ Heterogeneous graphs are crucial in many applications of graph neural networks, 
 3. `PyTorch` Geometric: Framework for creating and working with graph neural networks.
 4. `NetworkX`: Used for creating and managing complex graph structures.
 5. `PyVis`: Enables interactive visualization of graphs.
+
+# Installation
+
+## Manual
+
+1. Make sure, that you have Anaconda or Miniconda installed.
+2.Then, create new conda env from the provided environment.yml file:
+```bash
+conda env create -f environment.yml
+```
+3. Activate environment:
+```bash
+conda activate hextractor
+```
+4. Install [**poetry**](https://python-poetry.org/docs/) - main package manager used by this project
+```bash
+pip install poetry
+```
+5. Install the package with all dependencies:
+```bash
+poetry install --with dev --with research
+```
+
+To use package, remember to activate the environment.
+
+
+
+## Convenience script
+
+Operations mentioned above can be automated using the provided shell script: `setup_project.sh`. To run it, execute the following command in the terminal:
+```bash
+sh ./setup_project.sh
+```
