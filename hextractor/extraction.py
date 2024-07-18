@@ -1,32 +1,25 @@
 """Main part of the tool, containing the extraction functions."""
 
-from typing import Tuple
 import torch_geometric.data as pyg_data
-import hextractor.utils as hx_utils
+import hextractor.data_sources as data_sources
 
 
-def extract_data_from_sources(
-    data_sources: Tuple[hx_utils.DataFrameSource, ...],
-) -> pyg_data.HeteroData:
-    """Extracts heterogeneous data from the input DataFrameSources.
+def extract_data(graph_specs: data_sources.GraphSpecs) -> pyg_data.HeteroData:
+    """Extracts heterogeneous data from the Graph Specs.
 
     Parameters
     ----------
-    data_sources : Tuple[hx_utils.DataFrameSource]
-        DataFrameSources containing the data and the extraction specs.
+    graph_specs : data_sources.GraphSpecs
+        Graph specs containing the data sources.
 
     Returns
     -------
     pyg_data.HeteroData
         Constructed heterogeneous graph data.
     """
-
-    """#TODO: think about wrapping multiple DataFrameSources into 'GraphSpecs'
-    where single graph spec might contain multiple sources. """
-
     all_nodes_data = {}
     all_edges = {}
-    for source in data_sources:
+    for source in graph_specs.data_sources:
         nodes = source.extract_nodes_data()
         all_nodes_data = all_nodes_data | nodes.nodes_data
         edges = source.extract_edges_data()
@@ -35,7 +28,7 @@ def extract_data_from_sources(
     for node_type, node_info in all_nodes_data.items():
         hetero_data[node_type].x = node_info.node_data
         if node_info.has_target:
-            hetero_data[node_type].y = node_info.target_data
+            hetero_data[node_type].y = node_info.label_data
 
     for edge, edge_info in all_edges.items():
         hetero_data[edge].edge_index = edge_info.edge_index
@@ -44,7 +37,7 @@ def extract_data_from_sources(
             hetero_data[edge].edge_attr = edge_info.edge_attr
 
         if edge_info.has_target:
-            hetero_data[edge].y = edge_info.target_data
+            hetero_data[edge].y = edge_info.label_data
 
     validate_consistency(hetero_data)
     return hetero_data
