@@ -276,6 +276,21 @@ tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "autoroot"
+version = "1.0.0"
+description = "Simple package for easy project root setup"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "autoroot-1.0.0-py3-none-any.whl", hash = "sha256:42bfd4fa312b24aae6f0fba2aa40402f0b245719011279d154f0afa63f782424"},
+    {file = "autoroot-1.0.0.tar.gz", hash = "sha256:d5a390d734f4d85568d2907ed89e842148933eab1b457472461ed4b06874aa83"},
+]
+
+[package.dependencies]
+pyrootutils = ">=1.0.4"
+python-dotenv = ">=0.20.0"
+
+[[package]]
 name = "babel"
 version = "2.15.0"
 description = "Internationalization utilities"
@@ -2448,6 +2463,20 @@ files = [
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
+name = "pyrootutils"
+version = "1.0.4"
+description = "Simple package for easy project root setup"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "pyrootutils-1.0.4-py3-none-any.whl", hash = "sha256:8bbf25425278693168ae03b167aa6509422dc21853a6ee01d5d5e40601a89f90"},
+    {file = "pyrootutils-1.0.4.tar.gz", hash = "sha256:f58aac67147bbab20938b7b783cb2f4670d6329a33c6640233854976538fc5f2"},
+]
+
+[package.dependencies]
+python-dotenv = ">=0.20.0"
+
+[[package]]
 name = "pytest"
 version = "8.2.2"
 description = "pytest: simple powerful testing with Python"
@@ -3610,4 +3639,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "59986d4f3b27e04b5be772e032164aa2e5414126dcc4239c8d67e39c3f21bb54"
+content-hash = "a32d89ed7145acd6fc67cead1a970bb8a3ad0951bc1753208c623209935edeff"

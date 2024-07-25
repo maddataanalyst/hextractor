@@ -144,7 +144,7 @@ class DataFrameSpecs(DataSourceSpecs):
         node_ids = node_attr_df[node_param.id_col].values
         max_node_id = node_ids.max()
 
-        id_counts = pd.value_counts(node_ids).max()
+        id_counts = pd.Series(node_ids).value_counts().max()
         if id_counts > 1:
             if not node_param.multivalue_source:
                 nodes_with_duplicates = node_attr_df[
