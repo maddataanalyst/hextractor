@@ -13,16 +13,20 @@ TYPE_NAME_2_TORCH = {"float": th.float, "long": th.long, "int": th.int}
 
 
 class DataSourceSpecs(ABC):
+    """Base class for the data source specifications. It specifies how the data should be extracted from a single source."""
+
     def __init__(
         self,
         name: str,
         node_params: Tuple[structures.NodeTypeParams],
         edge_params: Tuple[structures.EdgeTypeParams],
+        squeeze_single_dims: bool = True,
         **kwargs,
     ):
         self.name = name
         self.node_params = node_params
         self.edge_params = edge_params
+        self.squeeze_single_dims = squeeze_single_dims
         self.validate()
         self._build_helper_lookups()
 
@@ -57,11 +61,23 @@ class DataSourceSpecs(ABC):
 
 
 class GraphSpecs:
+    """Main class for the graph specs. It specifies how a SINGLE heterogeneous graph should be constructed from one or more sources."""
+
     def __init__(self, data_sources: Tuple[DataSourceSpecs, ...]):
         self.data_sources = data_sources
         self.validate_consistency()
 
     def validate_consistency(self):
+        """Checks if the constructed graph is consistent. Namely:
+        1. No duplicated node types.
+        2. No duplicated edges.
+        3. All node types are present in the edge types.
+
+        Raises
+        ------
+        ValueError
+            If the graph nodes or edges are duplicated or some node type is missing (it doesn't have attributes).
+        """
         unique_node_types = set()
         unique_edge_types = set()
         for data_source in self.data_sources:
@@ -89,30 +105,78 @@ class GraphSpecs:
 
 
 class DataFrameSpecs(DataSourceSpecs):
+    """Concrete implementation of the DataSourceSpecs for the pandas DataFrame."""
+
     def __init__(
         self,
         name: str,
         node_params: Tuple[structures.NodeTypeParams] = tuple(),
         edge_params: Tuple[structures.EdgeTypeParams] = tuple(),
         data_frame: pd.DataFrame = pd.DataFrame(),
+        squeeze_single_dims: bool = True,
     ):
-        super().__init__(name, node_params, edge_params)
+        super().__init__(name, node_params, edge_params, squeeze_single_dims)
         self.data_frame = data_frame
 
     def _process_multivalue_node(
         self, node_param: structures.NodeTypeParams
     ) -> Tuple[th.Tensor, th.Tensor]:
+        """This function processes nodes that are described as multi-0valued vectors: e.g. list of tags.
+        If in a single cell or row there are multiple values, they are exploded and the unique values are extracted.
+        For example:
+        Job offer A has tags X, Y, Z, Q --> then separate nodes for tags X, Y, Z ,Q will be created and unique IDs
+        will be assigned to nodes e.g.: X -> 0, Y -> 1, Z -> 2, Q -> 3
+
+        Parameters
+        ----------
+        node_param : structures.NodeTypeParams
+            Node type parameters.
+
+        Returns
+        -------
+        Tuple[th.Tensor, th.Tensor]
+            Unique node ids tensor and None (no labels for multivalue nodes).
+
+        Raises
+        ------
+        ValueError
+            Raises error if node values are not numeric.
+        """
         source_column = self.data_frame[node_param.id_col]
         all_possible_values = source_column.explode().unique().astype(int)
         if all_possible_values.dtype == "object":
             raise ValueError("Multi-value source must have a numeric unique values!")
         max_val = all_possible_values.max()
         unique_ids_tensor = th.arange(max_val + 1)
+        if not self.squeeze_single_dims:
+            unique_ids_tensor = th.atleast_2d(unique_ids_tensor)
         return unique_ids_tensor, None
 
     def _process_standard_node_with_attributes(
         self, node_param: structures.NodeTypeParams
     ) -> Tuple[th.Tensor, th.Tensor]:
+        """A function that processes a standard node, described by a matrix of attribute values.
+
+        Parameters
+        ----------
+        node_param : structures.NodeTypeParams
+            Node parameter specification.
+
+        Returns
+        -------
+        Tuple[th.Tensor, th.Tensor]
+            A tuple of:
+            1. All node attributes tensor. Dimensionality: (max node id + 1, Number of attributes)
+            2. Node labels tensor. Dimensionality: (max node id + 1) or None if no labels are specified.
+
+        Raises
+        ------
+        ValueError
+            Raises error if not all attributes are numeric or node ids are duplicated and have different attributes
+            in different instances. E.g. node with id 1 is repeated twice, first time: it has a set of attributes X,
+            second time: X'.
+        """
+
         # Step 1: Get the node-specific data, de-duplicate and sort by id
         # Dim: (Batch size, Number of attributes + id + target(if specified))
         target_col_lst = [node_param.label_col] if node_param.label_col else []
@@ -195,11 +259,33 @@ class DataFrameSpecs(DataSourceSpecs):
                 th.tensor(node_df[node_param.label_col].values, dtype=th.long),
             )
 
+        if self.squeeze_single_dims:
+            all_node_attrs_tensor = th.squeeze(all_node_attrs_tensor)
+            if node_labels is not None:
+                node_labels = th.squeeze(node_labels)
+        else:
+            all_node_attrs_tensor = th.atleast_2d(all_node_attrs_tensor)
+            if node_labels is not None:
+                node_labels = th.atleast_2d(node_labels)
         return all_node_attrs_tensor, node_labels
 
     def process_node_param(
         self, node_param: structures.NodeTypeParams
     ) -> Tuple[th.Tensor, th.Tensor]:
+        """Processes a single node param, according to its type: either as a standard node with attributes or as a multi-value node.
+
+        Parameters
+        ----------
+        node_param : structures.NodeTypeParams
+            Node type parameters.
+
+        Returns
+        -------
+        Tuple[th.Tensor, th.Tensor]
+            A tuple with two tensors:
+            1. Node attributes tensor.
+            2. Node labels tensor or None if no labels are specified.
+        """
         if node_param.multivalue_source:
             return self._process_multivalue_node(node_param)
         return self._process_standard_node_with_attributes(node_param)
@@ -292,6 +378,17 @@ class DataFrameSpecs(DataSourceSpecs):
         return edge_index, source_target_df
 
     def extract_edges_data(self) -> structures.EdgesData:
+        """Extracts edges data from the data frame. Edge data has format specific for PyTorch Geometric hetero graphs:
+        a dictionary with keys = edge types (eg. company-has-employee), and values are tensors with shape: (2 x Number of edges) for edge index.
+        Edges are formatted as the adjacecy list: first dimension = 2, describes at index 0 - sender/source, at index 1 - receiver/target.
+        So, for example if node 0 --sends to-->1, 0 -- sends to --> 2, 1 -- sends to --> 3, the edge index tensor will be:
+        [[0, 0, 1], [1, 2, 3]].
+
+        Returns
+        -------
+        structures.EdgesData
+            Helper structure, that describes edges data.
+        """
         edges_results = {}
         for edge_info in self.edge_params:
             key = (

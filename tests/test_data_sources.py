@@ -209,7 +209,7 @@ def test_correct_hetero_graph_construction_single_df(
         )
 
 
-def test_correct_hetero_graph_construction_multi_df(
+def test_correct_hetero_graph_construction_multi_df_with_squeeze_single_dim(
     company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
 ):
     # Given
@@ -238,6 +238,121 @@ def test_correct_hetero_graph_construction_multi_df(
     )
     tag_df_source = data_sources.DataFrameSpecs(
         name="df2", node_params=(company_tags_node_params,), data_frame=tags_df
+    )
+
+    employee_node_params = structures.NodeTypeParams(
+        node_type_name="employee",
+        id_col="employee_id",
+        attributes=("employee_occupation", "employee_age"),
+        label_col="employee_promotion",
+        attr_type="long",
+    )
+    employee_df_source = data_sources.DataFrameSpecs(
+        name="df3", node_params=(employee_node_params,), data_frame=employee_df
+    )
+
+    company_has_emp_edge_params = structures.EdgeTypeParams(
+        edge_type_name="has",
+        source_name="company",
+        target_name="employee",
+        source_id_col="company_id",
+        target_id_col="employee_id",
+    )
+    company_has_emp_edge_df_source = data_sources.DataFrameSpecs(
+        name="df4",
+        edge_params=(company_has_emp_edge_params,),
+        data_frame=company_has_employee_df,
+    )
+
+    company_has_tag_edge_params = structures.EdgeTypeParams(
+        edge_type_name="has",
+        source_name="company",
+        target_name="tag",
+        source_id_col="company_id",
+        target_id_col="tags",
+    )
+    company_has_tag_edge_df_source = data_sources.DataFrameSpecs(
+        name="df5",
+        edge_params=(company_has_tag_edge_params,),
+        data_frame=company_has_tag_df,
+    )
+
+    graph_specs = data_sources.GraphSpecs(
+        data_sources=(
+            company_df_source,
+            employee_df_source,
+            tag_df_source,
+            company_has_emp_edge_df_source,
+            company_has_tag_edge_df_source,
+        )
+    )
+
+    expected_hetero_g = pyg_data.HeteroData()
+    expected_hetero_g["company"].x = th.tensor(
+        np.array([[0, 0], [100, 1000], [5000, 100000]])
+    )
+    expected_hetero_g["employee"].x = th.tensor(
+        np.array([[0, 25], [1, 35], [0, 0], [3, 45], [1, 18], [1, 20], [4, 31]])
+    )
+    expected_hetero_g["tag"].x = th.arange(5)
+    expected_hetero_g["employee"].y = th.tensor(np.array([0, 1, 0, 0, 1, 1, 0]))
+    expected_hetero_g["company", "has", "employee"].edge_index = th.tensor(
+        [[1, 1, 1, 2, 2, 2], [0, 1, 3, 4, 5, 6]]
+    )
+
+    expected_hetero_g["company", "has", "tag"].edge_index = th.tensor(
+        [[1, 1, 1, 1, 2, 2, 2], [1, 2, 3, 4, 1, 2, 4]]
+    )
+
+    # when
+    hetero_g = extr.extract_data(graph_specs)
+
+    # then
+    assert expected_hetero_g.node_types == hetero_g.node_types
+    assert expected_hetero_g.edge_types == hetero_g.edge_types
+
+    assert th.all(expected_hetero_g["employee"].y == hetero_g["employee"].y)
+    for node_type in hetero_g.node_types:
+        assert th.all(expected_hetero_g[node_type].x == hetero_g[node_type].x)
+
+    for edge_type in hetero_g.edge_types:
+        assert th.all(
+            expected_hetero_g[edge_type].edge_index == hetero_g[edge_type].edge_index
+        )
+
+
+def test_correct_hetero_graph_construction_multi_df_no_squeeze_single_dim(
+    company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
+):
+    # Given
+
+    """Split each node into different data frame sources. E.g.: employees are in a separate data frame (table).
+    Use linking tables to create edges and connect entities (e.g. company-has-tag)
+    """
+    company_df, employee_df, tags_df, company_has_employee_df, company_has_tag_df = (
+        company_has_employee_multi_df
+    )
+    company_node_params = structures.NodeTypeParams(
+        node_type_name="company",
+        id_col="company_id",
+        attributes=("company_employees", "company_revenue"),
+        attr_type="float",
+    )
+    company_df_source = data_sources.DataFrameSpecs(
+        name="df1", node_params=(company_node_params,), data_frame=company_df
+    )
+
+    company_tags_node_params = structures.NodeTypeParams(
+        node_type_name="tag",
+        multivalue_source=False,
+        id_col="tags",
+        id_as_attr=True,
+    )
+    tag_df_source = data_sources.DataFrameSpecs(
+        name="df2",
+        node_params=(company_tags_node_params,),
+        data_frame=tags_df,
+        squeeze_single_dims=False,
     )
 
     employee_node_params = structures.NodeTypeParams(
