@@ -45,7 +45,9 @@ To use package, remember to activate the environment.
 
 ## Convenience script
 
-Operations mentioned above can be automated using the provided shell script: `setup_project.sh`. To run it, execute the following command in the terminal:
+Operations mentioned above can be automated using the provided shell script: `setup_project.sh`.
+
+To run it, execute the following command in the terminal:
 ```bash
-sh ./setup_project.sh
+./setup_project.sh
 ```

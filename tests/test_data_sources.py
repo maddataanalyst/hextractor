@@ -117,8 +117,12 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
         data_frame=company_has_employee_df,
     )
 
+    # when
     with pytest.raises(ValueError) as e:
         data_sources.GraphSpecs(data_sources=(df_source_specs,))
+
+    # then
+    assert "Node type tag is missing." in str(e.value)
 
 
 def test_correct_hetero_graph_construction_single_df(
