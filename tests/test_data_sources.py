@@ -590,7 +590,7 @@ def test_nodetype_params_multivalue_source_ok():
 def test_nodetype_params_multivalue_source_target_col_not_allowed():
     # When
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         structures.NodeTypeParams(
             node_type_name="tag",
             id_col="tags",
