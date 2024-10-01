@@ -15,6 +15,7 @@ pydantic = "^2.7.3"
 black = "^24.4.2"
 pandas = "^2.2.2"
 autoroot = "^1.0.0"
+pyvis = "^0.3.2"
 
 [tool.poetry.group.research]
 optional = true
