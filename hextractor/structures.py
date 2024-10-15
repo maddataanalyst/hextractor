@@ -136,9 +136,15 @@ class VisualizationConfig(BaseModel):
     default_edge_weight: int = 1
     default_edge_weight_attr: str = None
     notebook_visualization: bool = False
-
-    # TODO: add support for custom attributes for nodes and edges (not only the default ones from PyG )
-    # TODO: add support for custom name idx attribute for nodes and attrs - maybe using LabelEncoder from sklearn?
+    select_menu: bool = True
+    filter_menu: bool = True
+    width: str = "1500px"
+    height: str = "1500px"
+    buttons: Tuple[Literal["physics", "layout", "interaction", "selection"], ...] = (
+        "layout",
+        "physics",
+        "selection",
+    )
 
     @property
     def all_node_types(self):

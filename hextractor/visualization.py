@@ -126,8 +126,12 @@ class VisualizationBuilder:
         """
         VisualizationBuilder.check_config_with_graph(vis_config, hetero_g)
         network = Network(
-            notebook=vis_config.notebook_visualization
-        )  # TODO: later on add more options in visualization config
+            notebook=vis_config.notebook_visualization,
+            select_menu=vis_config.select_menu,
+            filter_menu=vis_config.filter_menu,
+            width=vis_config.width,
+            height=vis_config.height,
+        )
         for edge in vis_config.all_edge_types:
             src_node_type, rel, trg_node_type = edge
             src_node_color = vis_config.get_node_color(src_node_type)
@@ -166,4 +170,5 @@ class VisualizationBuilder:
                 network.add_edge(
                     s_id, t_id, color=edge_color_attr, label=rel, width=edge_weight
                 )
+        network.show_buttons(vis_config.buttons)
         return network
