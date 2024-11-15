@@ -31,6 +31,8 @@ ruff = "^0.4.10"
 pre-commit = "^3.7.1"
 pytest-cov = "^5.0.0"
 deptree = "^0.0.12"
+openpyxl = "^3.1.5"
+pyarrow = "^18.0.0"
 
 [build-system]
 requires = ["poetry-core"]
