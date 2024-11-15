@@ -597,3 +597,125 @@ def test_nodetype_params_multivalue_source_target_col_not_allowed():
             multivalue_source=True,
             label_col="target",
         )
+
+
+class TestFileDataSources:
+
+    def str_to_tuple(x: str) -> tuple[int]:
+        return tuple(map(int, x.strip("[]").split(", ")))
+
+    @pytest.mark.parametrize(
+        "save_func, source_type, extra_kwargs",
+        [
+            (pd.DataFrame.to_csv, "csv", {"converters": {"tags": str_to_tuple}},),
+            (pd.DataFrame.to_excel, "excel", {"converters": {"tags": str_to_tuple}},),
+            (pd.DataFrame.to_json, "json", {}),
+            (pd.DataFrame.to_parquet, "parquet", {}),
+        ],
+    )
+    def test_read_dataframe_from_file(self, save_func, source_type, extra_kwargs, tmpdir, company_has_employee_df):
+        # Given
+        tmp_file_path = tmpdir.join(f"test_file.{source_type}")
+        save_func(company_has_employee_df, tmp_file_path)
+        company_node_params = structures.NodeTypeParams(
+            node_type_name="company",
+            id_col="company_id",
+            attributes=("company_employees", "company_revenue"),
+            attr_type="float",
+        )
+
+        company_tags_node_params = structures.NodeTypeParams(
+            node_type_name="tag",
+            multivalue_source=True,
+            id_col="tags",
+        )
+
+        employee_node_params = structures.NodeTypeParams(
+            node_type_name="employee",
+            id_col="employee_id",
+            attributes=("employee_occupation", "employee_age"),
+            label_col="employee_promotion",
+            attr_type="long",
+        )
+
+        company_has_emp_edge_params = structures.EdgeTypeParams(
+            edge_type_name="has",
+            source_name="company",
+            target_name="employee",
+            source_id_col="company_id",
+            target_id_col="employee_id",
+        )
+
+        company_has_tag_edge_params = structures.EdgeTypeParams(
+            edge_type_name="has",
+            source_name="company",
+            target_name="tag",
+            source_id_col="company_id",
+            target_id_col="tags",
+            multivalue_target=True,
+        )
+
+        # When
+        df_source_specs = data_sources.DataFrameSpecs.from_file(
+            name="df1",
+            source=tmp_file_path,
+            source_type=source_type,
+            node_params=(
+                company_node_params,
+                employee_node_params,
+                company_tags_node_params,
+            ),
+            edge_params=(company_has_emp_edge_params, company_has_tag_edge_params),
+            **extra_kwargs,
+        )
+
+        # Then
+        assert df_source_specs is not None
+        graph_specs = data_sources.GraphSpecs(data_sources=(df_source_specs,))
+
+        expected_hetero_g = pyg_data.HeteroData()
+        expected_hetero_g["company"].x = th.tensor(
+            np.array([[0, 0], [100, 1000], [5000, 100000]])
+        )
+        expected_hetero_g["employee"].x = th.tensor(
+            np.array([[0, 25], [1, 35], [0, 0], [3, 45], [1, 18], [1, 20], [4, 31]])
+        )
+        expected_hetero_g["tag"].x = th.arange(5)
+        expected_hetero_g["employee"].y = th.tensor(np.array([0, 1, 0, 0, 1, 1, 0]))
+        expected_hetero_g["company", "has", "employee"].edge_index = th.tensor(
+            [[1, 1, 1, 2, 2, 2], [0, 1, 3, 4, 5, 6]]
+        )
+
+        expected_hetero_g["company", "has", "tag"].edge_index = th.tensor(
+            [[1, 1, 1, 1, 2, 2, 2], [1, 2, 3, 4, 1, 2, 4]]
+        )
+
+        # when
+        hetero_g = extr.extract_data(graph_specs)
+
+        # then
+        assert expected_hetero_g.node_types == hetero_g.node_types
+        assert expected_hetero_g.edge_types == hetero_g.edge_types
+
+        assert th.all(expected_hetero_g["employee"].y == hetero_g["employee"].y)
+        for node_type in hetero_g.node_types:
+            assert th.all(expected_hetero_g[node_type].x == hetero_g[node_type].x)
+
+        for edge_type in hetero_g.edge_types:
+            assert th.all(
+                expected_hetero_g[edge_type].edge_index == hetero_g[edge_type].edge_index
+            )
+
+    def test_unsuported_source_type(self, tmpdir):
+        # Given
+        tmp_file_path = tmpdir.join("test_file.txt")
+
+        # When # Then
+        with pytest.raises(ValueError, match="Unsupported source_type: unknown"):
+            data_sources.DataFrameSpecs.from_file(
+                name="df1",
+                source=tmp_file_path,
+                source_type="unknown",
+                node_params=(),
+                edge_params=(),
+            )
