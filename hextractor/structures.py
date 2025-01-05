@@ -1,6 +1,6 @@
 """A module contains data structures and helper models used across the HexTractor package."""
 
-from typing import Tuple, Literal, Dict
+from typing import Tuple, Literal, Dict, Any
 from pydantic import BaseModel, model_validator
 
 import torch as th
@@ -145,6 +145,8 @@ class VisualizationConfig(BaseModel):
         "physics",
         "selection",
     )
+    pyvis_additional_kwargs: Dict[str, Any] = {}
+
 
     @property
     def all_node_types(self):

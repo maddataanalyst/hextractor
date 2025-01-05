@@ -62,7 +62,7 @@ def test_check_config_with_graph_missing_node_type_no_label_mapping():
     hetero_g["type1"].x = []
 
     # then
-    with pytest.raises(ValueError, match="Node type type2 is missing."):
+    with pytest.raises(ValueError, match=r"Node type type2 is missing."):
         VisualizationBuilder.check_config_with_graph(vis_config, hetero_g)
 
 
@@ -79,7 +79,7 @@ def test_check_config_with_graph_missing_edge_type_no_label_mapping():
 
     # then
     with pytest.raises(
-        ValueError, match="Edge type \('type1', 'rel', 'type2'\) is missing."
+        ValueError, match=r"Edge type \('type1', 'rel', 'type2'\) is missing."
     ):
         VisualizationBuilder.check_config_with_graph(vis_config, hetero_g)
 
@@ -103,7 +103,7 @@ def test_check_config_with_graph_missing_edge_attr_no_label_mapping():
     # then
     with pytest.raises(
         ValueError,
-        match="Edge attribute edge_attr is missing index: 1 for \('type1', 'rel', 'type2'\).",
+        match=r"Edge attribute edge_attr is missing index: 1 for \('type1', 'rel', 'type2'\).",
     ):
         VisualizationBuilder.check_config_with_graph(vis_config, hetero_g)
 
@@ -254,7 +254,7 @@ def test_build_visualization_no_errors():
 
     # then
     try:
-        _ = VisualizationBuilder.build_visualization(
+        VisualizationBuilder.build_visualization(
             vis_config, hetero_g, label_mapping
         )
     except Exception:

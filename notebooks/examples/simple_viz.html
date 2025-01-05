@@ -75,19 +75,19 @@
                                 
                                     <option value="author_0">author_0</option>
                                 
-                                    <option value="paper_0">paper_0</option>
+                                    <option value="university_0">university_0</option>
                                 
                                     <option value="author_1">author_1</option>
                                 
-                                    <option value="paper_1">paper_1</option>
+                                    <option value="university_1">university_1</option>
                                 
                                     <option value="author_2">author_2</option>
                                 
-                                    <option value="university_0">university_0</option>
-                                
-                                    <option value="university_1">university_1</option>
-                                
                                     <option value="university_2">university_2</option>
+                                
+                                    <option value="paper_0">paper_0</option>
+                                
+                                    <option value="paper_1">paper_1</option>
                                 
                             </select>
                         </div>
@@ -311,8 +311,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "red", "id": "author_0", "label": "John Doe", "shape": "dot"}, {"color": "green", "id": "paper_0", "label": "Some random paper", "shape": "dot"}, {"color": "red", "id": "author_1", "label": "Marcin Malczewski", "shape": "dot"}, {"color": "green", "id": "paper_1", "label": "Hextractor paper", "shape": "dot"}, {"color": "red", "id": "author_2", "label": "Filip W\u00f3jcik", "shape": "dot"}, {"color": "blue", "id": "university_0", "label": "Random Uni", "shape": "dot"}, {"color": "blue", "id": "university_1", "label": "Pwr", "shape": "dot"}, {"color": "blue", "id": "university_2", "label": "UE Wroc", "shape": "dot"}]);
-                  edges = new vis.DataSet([{"color": "black", "from": "author_0", "label": "writes", "to": "paper_0", "width": 1}, {"color": "black", "from": "author_1", "label": "writes", "to": "paper_1", "width": 1}, {"color": "black", "from": "author_2", "label": "writes", "to": "paper_1", "width": 1}, {"color": "purple", "from": "author_0", "label": "affiliated", "to": "university_0", "width": 1}, {"color": "purple", "from": "author_1", "label": "affiliated", "to": "university_1", "width": 1}, {"color": "purple", "from": "author_2", "label": "affiliated", "to": "university_2", "width": 1}]);
+                  nodes = new vis.DataSet([{"color": "red", "id": "author_0", "label": "John Doe", "shape": "dot"}, {"color": "blue", "id": "university_0", "label": "Random Uni", "shape": "dot"}, {"color": "red", "id": "author_1", "label": "Marcin Malczewski", "shape": "dot"}, {"color": "blue", "id": "university_1", "label": "Pwr", "shape": "dot"}, {"color": "red", "id": "author_2", "label": "Filip W\u00f3jcik", "shape": "dot"}, {"color": "blue", "id": "university_2", "label": "UE Wroc", "shape": "dot"}, {"color": "green", "id": "paper_0", "label": "Some random paper", "shape": "dot"}, {"color": "green", "id": "paper_1", "label": "Hextractor paper", "shape": "dot"}]);
+                  edges = new vis.DataSet([{"color": "purple", "from": "author_0", "label": "affiliated", "to": "university_0", "width": 1}, {"color": "purple", "from": "author_1", "label": "affiliated", "to": "university_1", "width": 1}, {"color": "purple", "from": "author_2", "label": "affiliated", "to": "university_2", "width": 1}, {"color": "black", "from": "author_0", "label": "writes", "to": "paper_0", "width": 1}, {"color": "black", "from": "author_1", "label": "writes", "to": "paper_1", "width": 1}, {"color": "black", "from": "author_2", "label": "writes", "to": "paper_1", "width": 1}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });
