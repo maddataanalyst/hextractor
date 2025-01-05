@@ -128,7 +128,7 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
 def test_correct_hetero_graph_construction_single_df(
     company_has_employee_df: pd.DataFrame,
 ):
-    # Given
+    # given
     company_node_params = structures.NodeTypeParams(
         node_type_name="company",
         id_col="company_id",
@@ -216,7 +216,7 @@ def test_correct_hetero_graph_construction_single_df(
 def test_correct_hetero_graph_construction_multi_df_with_squeeze_single_dim(
     company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
 ):
-    # Given
+    # given
 
     """Split each node into different data frame sources. E.g.: employees are in a separate data frame (table).
     Use linking tables to create edges and connect entities (e.g. company-has-tag)
@@ -328,7 +328,7 @@ def test_correct_hetero_graph_construction_multi_df_with_squeeze_single_dim(
 def test_correct_hetero_graph_construction_multi_df_no_squeeze_single_dim(
     company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
 ):
-    # Given
+    # given
 
     """Split each node into different data frame sources. E.g.: employees are in a separate data frame (table).
     Use linking tables to create edges and connect entities (e.g. company-has-tag)
@@ -559,7 +559,7 @@ def test_missing_nodetypes():
 
 
 def test_nodetype_params():
-    # Given
+    # given
     node_type_params = structures.NodeTypeParams(
         node_type_name="company",
         id_col="company_id",
@@ -567,7 +567,7 @@ def test_nodetype_params():
         attr_type="float",
     )
 
-    # Then
+    # then
     assert node_type_params.node_type_name == "company"
     assert node_type_params.id_col == "company_id"
     assert node_type_params.attributes == ("company_employees", "company_revenue")
@@ -575,20 +575,20 @@ def test_nodetype_params():
 
 
 def test_nodetype_params_multivalue_source_ok():
-    # Given
+    # given
     node_type_params = structures.NodeTypeParams(
         node_type_name="tag",
         multivalue_source=True,
         id_col="tags",
     )
 
-    # Then
+    # then
     assert node_type_params.node_type_name == "tag"
     assert node_type_params.id_col == "tags"
 
 
 def test_nodetype_params_multivalue_source_target_col_not_allowed():
-    # When
+    # when
 
     with pytest.raises(ValueError):
         structures.NodeTypeParams(

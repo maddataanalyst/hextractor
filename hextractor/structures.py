@@ -1,6 +1,6 @@
 """A module contains data structures and helper models used across the HexTractor package."""
 
-from typing import Tuple, Literal, Dict
+from typing import Tuple, Literal, Dict, Any
 from pydantic import BaseModel, model_validator
 
 import torch as th
@@ -118,3 +118,81 @@ class EdgesData:
 
     def get_edge(self, edge_type: Tuple[str, str, str]) -> EdgeData:
         return self.edges_data[edge_type]
+
+
+class VisualizationConfig(BaseModel):
+    """Config for visualization of the heterogeneous graph"""
+
+    node_types: Tuple[str, ...] = tuple()
+    node_types_to_colors: Dict[str, str] = {}
+    node_type_label_attr_name: Dict[str, str] = {}
+    node_type_label_attr_idx: Dict[str, int] = {}
+    edge_types: Tuple[Tuple[str, str, str], ...] = tuple()
+    edge_type_to_colors: Dict[Tuple[str, str, str], str] = {}
+    edge_type_weight_attr_name: Dict[Tuple[str, str, str], str] = {}
+    edge_weights_attr_idx: Dict[Tuple[str, str, str], int] = {}
+    default_node_color: str = "blue"
+    default_edge_color: str = "black"
+    default_edge_weight: int = 1
+    default_edge_weight_attr: str = None
+    notebook_visualization: bool = False
+    select_menu: bool = True
+    filter_menu: bool = True
+    width: str = "1500px"
+    height: str = "1500px"
+    buttons: Tuple[Literal["physics", "layout", "interaction", "selection"], ...] = (
+        "layout",
+        "physics",
+        "selection",
+    )
+    pyvis_additional_kwargs: Dict[str, Any] = {}
+
+
+    @property
+    def all_node_types(self):
+        return set(list(self.node_types) + list(self.node_types_to_colors.keys()))
+
+    @property
+    def all_edge_types(self):
+        return set(
+            list(self.edge_types)
+            + list(self.edge_type_to_colors.keys())
+            + list(self.edge_weights_attr_idx.keys())
+        )
+
+    def get_node_color(self, node_type: str) -> str:
+        return self.node_types_to_colors.get(node_type, self.default_node_color)
+
+    def get_node_label_attr_name(self, node_type: str) -> str:
+        return self.node_type_label_attr_name.get(node_type, None)
+
+    def get_node_label_attr_idx(self, node_type: str) -> int:
+        return self.node_type_label_attr_idx.get(node_type, None)
+
+    def get_edge_weight_attr_idx(self, edge_type: Tuple[str, str, str]) -> int:
+        return self.edge_weights_attr_idx.get(edge_type, self.default_edge_weight_attr)
+
+    def get_edge_weight_attr_name(self, edge_type: Tuple[str, str, str]) -> str:
+        return self.edge_type_weight_attr_name.get(
+            edge_type, self.default_edge_weight_attr
+        )
+
+    def get_edge_color(self, edge_type: Tuple[str, str, str]) -> str:
+        return self.edge_type_to_colors.get(edge_type, self.default_node_color)
+
+    @model_validator(mode="after")
+    def check_consistency(self):
+        """Validates the consistency of the setup - all node and edge types should be selected,
+        additionally: edge source/targets should match the node types.
+
+        Raises
+        ------
+        ValueError
+            If edge/node inconsistency is detected.
+        """
+        for edge_type in self.all_edge_types:
+            source, _, target = edge_type
+            if source not in self.all_node_types:
+                raise ValueError(f"Node type {source} is not selected")
+            elif target not in self.all_node_types:
+                raise ValueError(f"Node type {target} is not selected")
