@@ -9,7 +9,7 @@ import hextractor.extraction as extr
 from typing import Tuple
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def company_has_employee_df():
     df = pd.DataFrame(
         [
@@ -35,7 +35,7 @@ def company_has_employee_df():
     return df
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def company_has_employee_multi_df():
     df = pd.DataFrame(
         [
@@ -73,16 +73,28 @@ def company_has_employee_multi_df():
     return company_df, employee_df, tags_df, company_has_employee_df, company_has_tag_df
 
 
-def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
-    # given
-    company_node_params = structures.NodeTypeParams(
+@pytest.fixture(scope="module")
+def company_node_params() -> structures.NodeTypeParams:
+    return structures.NodeTypeParams(
         node_type_name="company",
         id_col="company_id",
         attributes=("company_employees", "company_revenue"),
         attr_type="float",
     )
 
-    employee_node_params = structures.NodeTypeParams(
+
+@pytest.fixture(scope="module")
+def company_tags_node_params() -> structures.NodeTypeParams:
+    return structures.NodeTypeParams(
+        node_type_name="tag",
+        multivalue_source=True,
+        id_col="tags",
+    )
+
+
+@pytest.fixture(scope="module")
+def employee_node_params() -> structures.NodeTypeParams:
+    return structures.NodeTypeParams(
         node_type_name="employee",
         id_col="employee_id",
         attributes=("employee_occupation", "employee_age"),
@@ -90,7 +102,10 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
         attr_type="long",
     )
 
-    company_has_emp_edge_params = structures.EdgeTypeParams(
+
+@pytest.fixture(scope="module")
+def company_has_emp_edge_params() -> structures.EdgeTypeParams:
+    return structures.EdgeTypeParams(
         edge_type_name="has",
         source_name="company",
         target_name="employee",
@@ -98,7 +113,10 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
         target_id_col="employee_id",
     )
 
-    company_has_tag_edge_params = structures.EdgeTypeParams(
+
+@pytest.fixture(scope="module")
+def company_has_tag_edge_params() -> structures.EdgeTypeParams:
+    return structures.EdgeTypeParams(
         edge_type_name="has",
         source_name="company",
         target_name="tag",
@@ -107,6 +125,15 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
         multivalue_target=True,
     )
 
+
+def test_inconsistent_graph_specs_missing_tag_specs(
+    company_has_employee_df: pd.DataFrame,
+    company_node_params: structures.NodeTypeParams,
+    employee_node_params: structures.NodeTypeParams,
+    company_has_emp_edge_params: structures.EdgeTypeParams,
+    company_has_tag_edge_params: structures.EdgeTypeParams,
+):
+    # given
     df_source_specs = data_sources.DataFrameSpecs(
         name="df1",
         node_params=(
@@ -127,46 +154,13 @@ def test_inconsistent_graph_specs_missing_tag_specs(company_has_employee_df):
 
 def test_correct_hetero_graph_construction_single_df(
     company_has_employee_df: pd.DataFrame,
+    company_node_params: structures.NodeTypeParams,
+    company_tags_node_params: structures.NodeTypeParams,
+    employee_node_params: structures.NodeTypeParams,
+    company_has_emp_edge_params: structures.EdgeTypeParams,
+    company_has_tag_edge_params: structures.EdgeTypeParams,
 ):
     # given
-    company_node_params = structures.NodeTypeParams(
-        node_type_name="company",
-        id_col="company_id",
-        attributes=("company_employees", "company_revenue"),
-        attr_type="float",
-    )
-
-    company_tags_node_params = structures.NodeTypeParams(
-        node_type_name="tag",
-        multivalue_source=True,
-        id_col="tags",
-    )
-
-    employee_node_params = structures.NodeTypeParams(
-        node_type_name="employee",
-        id_col="employee_id",
-        attributes=("employee_occupation", "employee_age"),
-        label_col="employee_promotion",
-        attr_type="long",
-    )
-
-    company_has_emp_edge_params = structures.EdgeTypeParams(
-        edge_type_name="has",
-        source_name="company",
-        target_name="employee",
-        source_id_col="company_id",
-        target_id_col="employee_id",
-    )
-
-    company_has_tag_edge_params = structures.EdgeTypeParams(
-        edge_type_name="has",
-        source_name="company",
-        target_name="tag",
-        source_id_col="company_id",
-        target_id_col="tags",
-        multivalue_target=True,
-    )
-
     df_source_specs = data_sources.DataFrameSpecs(
         name="df1",
         node_params=(
@@ -217,7 +211,6 @@ def test_correct_hetero_graph_construction_multi_df_with_squeeze_single_dim(
     company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
 ):
     # given
-
     """Split each node into different data frame sources. E.g.: employees are in a separate data frame (table).
     Use linking tables to create edges and connect entities (e.g. company-has-tag)
     """
@@ -329,7 +322,6 @@ def test_correct_hetero_graph_construction_multi_df_no_squeeze_single_dim(
     company_has_employee_multi_df: Tuple[pd.DataFrame, ...],
 ):
     # given
-
     """Split each node into different data frame sources. E.g.: employees are in a separate data frame (table).
     Use linking tables to create edges and connect entities (e.g. company-has-tag)
     """
@@ -600,21 +592,30 @@ def test_nodetype_params_multivalue_source_target_col_not_allowed():
 
 
 class TestFileDataSources:
-
     def str_to_tuple(x: str) -> tuple[int]:
         return tuple(map(int, x.strip("[]").split(", ")))
 
     @pytest.mark.parametrize(
         "save_func, source_type, extra_kwargs",
         [
-            (pd.DataFrame.to_csv, "csv", {"converters": {"tags": str_to_tuple}},),
-            (pd.DataFrame.to_excel, "excel", {"converters": {"tags": str_to_tuple}},),
+            (
+                pd.DataFrame.to_csv,
+                "csv",
+                {"converters": {"tags": str_to_tuple}},
+            ),
+            (
+                pd.DataFrame.to_excel,
+                "excel",
+                {"converters": {"tags": str_to_tuple}},
+            ),
             (pd.DataFrame.to_json, "json", {}),
             (pd.DataFrame.to_parquet, "parquet", {}),
         ],
     )
-    def test_read_dataframe_from_file(self, save_func, source_type, extra_kwargs, tmpdir, company_has_employee_df):
-        # Given
+    def test_read_dataframe_from_file(
+        self, save_func, source_type, extra_kwargs, tmpdir, company_has_employee_df
+    ):
+        # given
         tmp_file_path = tmpdir.join(f"test_file.{source_type}")
         save_func(company_has_employee_df, tmp_file_path)
         company_node_params = structures.NodeTypeParams(
@@ -655,7 +656,7 @@ class TestFileDataSources:
             multivalue_target=True,
         )
 
-        # When
+        # when
         df_source_specs = data_sources.DataFrameSpecs.from_file(
             name="df1",
             source=tmp_file_path,
@@ -669,7 +670,7 @@ class TestFileDataSources:
             **extra_kwargs,
         )
 
-        # Then
+        # then
         assert df_source_specs is not None
         graph_specs = data_sources.GraphSpecs(data_sources=(df_source_specs,))
 
@@ -703,14 +704,15 @@ class TestFileDataSources:
 
         for edge_type in hetero_g.edge_types:
             assert th.all(
-                expected_hetero_g[edge_type].edge_index == hetero_g[edge_type].edge_index
+                expected_hetero_g[edge_type].edge_index
+                == hetero_g[edge_type].edge_index
             )
 
     def test_unsuported_source_type(self, tmpdir):
-        # Given
+        # given
         tmp_file_path = tmpdir.join("test_file.txt")
 
-        # When # Then
+        # when # then
         with pytest.raises(ValueError, match="Unsupported source_type: unknown"):
             data_sources.DataFrameSpecs.from_file(
                 name="df1",
