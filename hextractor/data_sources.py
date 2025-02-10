@@ -42,9 +42,9 @@ class DataSourceSpecs(ABC):
             if node_param.id_col:
                 self.nodetype2id[node_param.node_type_name] = node_param.id_col
                 self.id2nodetype[node_param.id_col] = node_param.node_type_name
-                self.nodetype2multival[node_param.node_type_name] = (
-                    node_param.multivalue_source
-                )
+                self.nodetype2multival[
+                    node_param.node_type_name
+                ] = node_param.multivalue_source
 
     def extract(self):
         raise NotImplementedError("Method 'extract' must be implemented in a subclass")

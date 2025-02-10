@@ -1,0 +1,33 @@
+site_name: HExtractor
+theme:
+  name: readthedocs
+
+plugins:
+  - search
+  - autorefs
+  - mermaid2
+  - mkdocstrings:
+      default_handler: python
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
+
+
+nav:
+  - Home: index.md
+  - Concepts: concepts.md
+  - API Reference:
+      - Data Sources: reference/data_sources.md
+      - Strustures: reference/structures.md
+      - Extraction: reference/extraction.md
+      - Visualization: reference/visualization.md
