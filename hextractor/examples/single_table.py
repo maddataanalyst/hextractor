@@ -13,8 +13,8 @@ import pandas as pd
 import hextractor.extraction as hextract
 import hextractor.data_sources as data_sources
 
-from examples.data import get_single_table_data
-from examples.utils import (
+from hextractor.examples.data import get_single_table_data
+from hextractor.examples.utils import (
     create_company_node_params,
     create_employee_node_params,
     create_tag_node_params,
@@ -28,20 +28,31 @@ def create_single_table_specs(
 ) -> data_sources.GraphSpecs:
     """Create graph specifications for single table processing.
     
-    Args:
-        df: DataFrame containing all entities and relationships.
-            If None, uses example data from get_single_table_data().
+    Parameters
+    ----------
+    df : pd.DataFrame, optional
+        DataFrame containing all entities and relationships.
+        If None, uses example data from get_single_table_data().
             
-    Returns:
+    Returns
+    -------
+    data_sources.GraphSpecs
         GraphSpecs configured for single table processing
     
-    Example:
-        >>> from examples.single_table import create_single_table_specs
-        >>> specs = create_single_table_specs()
-        >>> # Or with custom data:
-        >>> import pandas as pd
-        >>> df = pd.DataFrame({...})  # Your data
-        >>> specs = create_single_table_specs(df)
+    Examples
+    --------
+    Basic usage:
+    ```python
+    from hextractor.examples.single_table import create_single_table_specs
+    specs = create_single_table_specs()
+    ```
+    
+    With custom data:
+    ```python
+    import pandas as pd
+    df = pd.DataFrame({...})  # Your data
+    specs = create_single_table_specs(df)
+    ```
     """
     if df is None:
         df = get_single_table_data()
@@ -87,20 +98,31 @@ def create_single_table_graph(
     4. Creating graph specifications
     5. Extracting the final graph
     
-    Args:
-        df: DataFrame containing all entities and relationships.
-            If None, uses example data from get_single_table_data().
+    Parameters
+    ----------
+    df : pd.DataFrame, optional
+        DataFrame containing all entities and relationships.
+        If None, uses example data from get_single_table_data().
             
-    Returns:
+    Returns
+    -------
+    HeterogeneousGraph
         Extracted heterogeneous graph
         
-    Example:
-        >>> from examples.single_table import create_single_table_graph
-        >>> graph = create_single_table_graph()
-        >>> # Or with custom data:
-        >>> import pandas as pd
-        >>> df = pd.DataFrame({...})  # Your data
-        >>> graph = create_single_table_graph(df)
+    Examples
+    --------
+    Basic usage:
+    ```python
+    from hextractor.examples.single_table import create_single_table_graph
+    graph = create_single_table_graph()
+    ```
+    
+    With custom data:
+    ```python
+    import pandas as pd
+    df = pd.DataFrame({...})  # Your data
+    graph = create_single_table_graph(df)
+    ```
     """
     specs = create_single_table_specs(df)
     return hextract.extract_data(specs)

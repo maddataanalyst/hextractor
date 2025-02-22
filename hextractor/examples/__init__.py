@@ -14,13 +14,12 @@ The examples show common patterns like:
 - Building graph specifications
 
 Example Usage:
-    >>> from examples.single_table import create_single_table_graph
-    >>> graph = create_single_table_graph()
+```python
+from hextractor.examples.single_table import create_single_table_graph
+graph = create_single_table_graph()
 
-    >>> from examples.multi_table import create_multi_table_graph  
-    >>> graph = create_multi_table_graph()
-
+from hextractor.examples.multi_table import create_multi_table_graph  
+graph = create_multi_table_graph()
+```
 See the individual modules for more detailed examples and documentation.
 """
-
-__version__ = "0.1.0"

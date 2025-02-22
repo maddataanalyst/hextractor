@@ -24,16 +24,18 @@ def get_single_table_data() -> pd.DataFrame:
     company-employee relationship. Companies can have multiple tags stored
     as lists in the tags column.
     
-    Returns:
-        pd.DataFrame: DataFrame with columns:
-            - company_id (int): Unique company identifier
-            - company_employees (int): Number of employees
-            - company_revenue (int): Company revenue
-            - employee_id (int): Unique employee identifier 
-            - employee_occupation (int): Employee occupation code
-            - employee_age (int): Employee age
-            - employee_promotion (int): Binary promotion label
-            - tags (List[int]): List of tag IDs for the company
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns:
+        - company_id (int): Unique company identifier
+        - company_employees (int): Number of employees
+        - company_revenue (int): Company revenue
+        - employee_id (int): Unique employee identifier 
+        - employee_occupation (int): Employee occupation code
+        - employee_age (int): Employee age
+        - employee_promotion (int): Binary promotion label
+        - tags (List[int]): List of tag IDs for the company
     """
     return pd.DataFrame(
         [
@@ -59,13 +61,15 @@ def get_single_table_data() -> pd.DataFrame:
 def get_multi_table_data() -> Dict[str, pd.DataFrame]:
     """Generate example data split across multiple normalized tables.
     
-    Returns:
-        Dict[str, pd.DataFrame]: Dictionary containing DataFrames:
-            - companies: Company information (id, employees, revenue)
-            - employees: Employee information (id, occupation, age, promotion)
-            - tags: Tag IDs
-            - company_employees: Company-employee relationships
-            - company_tags: Company-tag relationships (with multi-value tags)
+    Returns
+    -------
+    dict of {str: pd.DataFrame}
+        Dictionary containing DataFrames:
+        - companies: Company information (id, employees, revenue)
+        - employees: Employee information (id, occupation, age, promotion)
+        - tags: Tag IDs
+        - company_employees: Company-employee relationships
+        - company_tags: Company-tag relationships
     """
     companies = pd.DataFrame({
         "company_id": [1, 2],

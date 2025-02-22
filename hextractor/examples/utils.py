@@ -17,12 +17,18 @@ def create_company_node_params(
 ) -> structures.NodeTypeParams:
     """Create node parameters for company entities.
     
-    Args:
-        id_col: Column name for company ID
-        employees_col: Column name for employee count
-        revenue_col: Column name for company revenue
+    Parameters
+    ----------
+    id_col : str
+        Column name for company ID
+    employees_col : str
+        Column name for employee count
+    revenue_col : str
+        Column name for company revenue
         
-    Returns:
+    Returns
+    -------
+    structures.NodeTypeParams
         NodeTypeParams configured for company nodes
     """
     return structures.NodeTypeParams(
@@ -40,13 +46,20 @@ def create_employee_node_params(
 ) -> structures.NodeTypeParams:
     """Create node parameters for employee entities.
     
-    Args:
-        id_col: Column name for employee ID
-        occupation_col: Column name for occupation code
-        age_col: Column name for employee age
-        promotion_col: Column name for promotion label
+    Parameters
+    ----------
+    id_col : str
+        Column name for employee ID
+    occupation_col : str
+        Column name for occupation code 
+    age_col : str
+        Column name for employee age
+    promotion_col : str
+        Column name for promotion label
         
-    Returns:
+    Returns
+    -------
+    structures.NodeTypeParams
         NodeTypeParams configured for employee nodes
     """
     return structures.NodeTypeParams(
@@ -63,11 +76,16 @@ def create_tag_node_params(
 ) -> structures.NodeTypeParams:
     """Create node parameters for tag entities.
     
-    Args:
-        id_col: Column name containing tag IDs
-        multivalue: Whether tags are stored as lists of values
+    Parameters
+    ----------
+    id_col : str
+        Column name containing tag IDs
+    multivalue : bool
+        Whether tags are stored as lists of values
         
-    Returns:
+    Returns
+    -------
+    structures.NodeTypeParams
         NodeTypeParams configured for tag nodes
     """
     return structures.NodeTypeParams(
@@ -82,11 +100,16 @@ def create_company_employee_edge_params(
 ) -> structures.EdgeTypeParams:
     """Create edge parameters for company-employee relationships.
     
-    Args:
-        company_id_col: Column name for company IDs
-        employee_id_col: Column name for employee IDs
+    Parameters
+    ----------
+    company_id_col : str
+        Column name for company IDs
+    employee_id_col : str
+        Column name for employee IDs
         
-    Returns:
+    Returns
+    -------
+    structures.EdgeTypeParams
         EdgeTypeParams configured for company-employee edges
     """
     return structures.EdgeTypeParams(
@@ -104,12 +127,18 @@ def create_company_tag_edge_params(
 ) -> structures.EdgeTypeParams:
     """Create edge parameters for company-tag relationships.
     
-    Args:
-        company_id_col: Column name for company IDs
-        tag_id_col: Column name for tag IDs
-        multivalue: Whether tags are stored as lists of values
+    Parameters
+    ----------
+    company_id_col : str
+        Column name for company IDs
+    tag_id_col : str
+        Column name for tag IDs
+    multivalue : bool
+        Whether tags are stored as lists of values
         
-    Returns:
+    Returns
+    -------
+    structures.EdgeTypeParams
         EdgeTypeParams configured for company-tag edges
     """
     return structures.EdgeTypeParams(
@@ -129,13 +158,20 @@ def create_dataframe_specs(
 ) -> data_sources.DataFrameSpecs:
     """Create DataFrame specifications for a data source.
     
-    Args:
-        name: Name identifier for the data source
-        df: Source DataFrame
-        node_params: Tuple of NodeTypeParams for entities in the DataFrame
-        edge_params: Tuple of EdgeTypeParams for relationships in the DataFrame
+    Parameters
+    ----------
+    name : str
+        Name identifier for the data source
+    df : pd.DataFrame
+        Source DataFrame 
+    node_params : Optional[Tuple[structures.NodeTypeParams, ...]]
+        Tuple of NodeTypeParams for entities in the DataFrame
+    edge_params : Optional[Tuple[structures.EdgeTypeParams, ...]]
+        Tuple of EdgeTypeParams for relationships in the DataFrame
         
-    Returns:
+    Returns
+    -------
+    data_sources.DataFrameSpecs
         DataFrameSpecs configured with the provided parameters
     """
     return data_sources.DataFrameSpecs(

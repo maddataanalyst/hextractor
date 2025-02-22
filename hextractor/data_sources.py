@@ -1,4 +1,5 @@
-"""A module contains utility classes and tools, needed to work with the hextractor package."""
+"""# Data sources module
+A module contains utility classes and tools, needed to work with the hextractor package."""
 
 from abc import ABC
 from typing import Tuple

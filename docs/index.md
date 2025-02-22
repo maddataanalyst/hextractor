@@ -40,11 +40,7 @@ HeXtractor is built using a robust stack of technologies, including:
    ```bash
    conda activate hextractor
    ```
-4. Install [**poetry**](https://python-poetry.org/docs/), the main package manager used by this project:
-   ```bash
-   pip install poetry
-   ```
-5. Install the package with all dependencies:
+4. Install the package with all dependencies:
    ```bash
    poetry install --with dev --with research
    ```
@@ -56,3 +52,8 @@ The above operations can be automated using the provided shell script: `setup_pr
 To run it, execute the following command in the terminal:
 ```bash
 ./setup_project.sh
+```
+
+# Examples 
+
+You can find a dedicated package with examples in the `examples` directory. These examples demonstrate the usage of HeXtractor for various datasets and scenarios. Additionally in the `notebooks` directory, you will find Jupyter notebooks that provide detailed walkthroughs of the tool's functionality.

@@ -13,8 +13,8 @@ import pandas as pd
 import hextractor.extraction as hextract
 import hextractor.data_sources as data_sources
 
-from examples.data import get_multi_table_data
-from examples.utils import (
+from hextractor.examples.data import get_multi_table_data
+from hextractor.examples.utils import (
     create_company_node_params,
     create_employee_node_params,
     create_tag_node_params,
@@ -28,30 +28,41 @@ def create_multi_table_specs(
 ) -> data_sources.GraphSpecs:
     """Create graph specifications for multi-table processing.
     
-    Args:
-        tables: Dictionary containing DataFrames:
-            - companies: Company information
-            - employees: Employee information
-            - tags: Tag information
-            - company_employees: Company-employee relationships
-            - company_tags: Company-tag relationships
-            If None, uses example data from get_multi_table_data().
+    Parameters
+    ----------
+    tables : dict of {str: pd.DataFrame}, optional
+        Dictionary containing DataFrames:
+        - companies: Company information
+        - employees: Employee information  
+        - tags: Tag information
+        - company_employees: Company-employee relationships
+        - company_tags: Company-tag relationships
+        If None, uses example data from get_multi_table_data().
             
-    Returns:
+    Returns
+    -------
+    data_sources.GraphSpecs
         GraphSpecs configured for multi-table processing
     
-    Example:
-        >>> from examples.multi_table import create_multi_table_specs
-        >>> specs = create_multi_table_specs()
-        >>> # Or with custom data:
-        >>> tables = {
-        ...     'companies': companies_df,
-        ...     'employees': employees_df,
-        ...     'tags': tags_df,
-        ...     'company_employees': company_employees_df,
-        ...     'company_tags': company_tags_df
-        ... }
-        >>> specs = create_multi_table_specs(tables)
+    Examples
+    --------
+    Basic usage:
+    ```python
+    from hextractor.examples.multi_table import create_multi_table_specs
+    specs = create_multi_table_specs()
+    ```
+    
+    With custom data:
+    ```python
+    tables = {
+        'companies': companies_df,
+        'employees': employees_df,
+        'tags': tags_df,
+        'company_employees': company_employees_df,
+        'company_tags': company_tags_df
+    }
+    specs = create_multi_table_specs(tables)
+    ```
     """
     if tables is None:
         tables = get_multi_table_data()
@@ -122,25 +133,36 @@ def create_multi_table_graph(
     4. Creating graph specifications combining all tables
     5. Extracting the final graph
     
-    Args:
-        tables: Dictionary of DataFrames containing entities and relationships.
-               If None, uses example data from get_multi_table_data().
+    Parameters
+    ----------
+    tables : dict of {str: pd.DataFrame}, optional
+        Dictionary of DataFrames containing entities and relationships.
+        If None, uses example data from get_multi_table_data().
             
-    Returns:
+    Returns
+    -------
+    HeterogeneousGraph
         Extracted heterogeneous graph
         
-    Example:
-        >>> from examples.multi_table import create_multi_table_graph
-        >>> graph = create_multi_table_graph()
-        >>> # Or with custom data:
-        >>> tables = {
-        ...     'companies': companies_df,
-        ...     'employees': employees_df,
-        ...     'tags': tags_df,
-        ...     'company_employees': company_employees_df,
-        ...     'company_tags': company_tags_df
-        ... }
-        >>> graph = create_multi_table_graph(tables)
+    Examples
+    --------
+    Basic usage:
+    ```python
+    from hextractor.examples.multi_table import create_multi_table_graph
+    graph = create_multi_table_graph()
+    ```
+    
+    With custom data:
+    ```python
+    tables = {
+        'companies': companies_df,
+        'employees': employees_df,
+        'tags': tags_df,
+        'company_employees': company_employees_df,
+        'company_tags': company_tags_df
+    }
+    graph = create_multi_table_graph(tables)
+    ```
     """
     specs = create_multi_table_specs(tables)
     return hextract.extract_data(specs)
