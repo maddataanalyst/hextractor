@@ -2,7 +2,8 @@
 A module contains utility classes and tools, needed to work with the hextractor package."""
 
 from abc import ABC
-from typing import Tuple
+from pathlib import Path
+from typing import Tuple, Union
 
 import numpy as np
 import torch as th
@@ -118,6 +119,45 @@ class DataFrameSpecs(DataSourceSpecs):
     ):
         super().__init__(name, node_params, edge_params, squeeze_single_dims)
         self.data_frame = data_frame
+
+
+    @classmethod
+    def from_file(
+        cls,
+        name: str,
+        source: Union[str, Path],
+        source_type: str = "csv",
+        node_params: Tuple[structures.NodeTypeParams] = tuple(),
+        edge_params: Tuple[structures.EdgeTypeParams] = tuple(),
+        **kwargs
+    ):
+        """
+        Create a DataFrameSpecs instance from a data source.
+        Args:
+            name (str): The name of the data source.
+            source (Union[str, Path]): The file path or URL of the data source.
+            source_type (str): The type of the data source (e.g., "csv", "excel").
+            node_params (Tuple): Parameters for nodes.
+            edge_params (Tuple): Parameters for edges.
+            **kwargs: Additional keyword arguments passed to pandas read methods.
+
+        Returns:
+            DataFrameSpecs: An instance of the class with data loaded.
+        """
+        source_type = source_type.lower()
+        if source_type == "csv":
+            data_frame = pd.read_csv(source, **kwargs)
+        elif source_type == "excel":
+            data_frame = pd.read_excel(source, **kwargs)
+        elif source_type == "json":
+            data_frame = pd.read_json(source, **kwargs)
+        elif source_type == "parquet":
+            data_frame = pd.read_parquet(source, **kwargs)
+        else:
+            raise ValueError(f"Unsupported source_type: {source_type}")
+
+        return cls(name=name, node_params=node_params, edge_params=edge_params, data_frame=data_frame)
+
 
     def _process_multivalue_node(
         self, node_param: structures.NodeTypeParams
