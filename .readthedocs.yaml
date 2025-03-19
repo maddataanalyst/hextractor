@@ -8,7 +8,7 @@ build:
   # https://docs.readthedocs.io/page/guides/reproducible-builds.html
   jobs:
     pre_install:
-      - pip install mkdocs-material mkdocs-mermaid2-plugin       
+      - pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocstrings[python] mkdocs-autorefs
 
 mkdocs:
   configuration: mkdocs.yml
