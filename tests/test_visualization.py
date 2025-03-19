@@ -254,8 +254,6 @@ def test_build_visualization_no_errors():
 
     # then
     try:
-        VisualizationBuilder.build_visualization(
-            vis_config, hetero_g, label_mapping
-        )
+        VisualizationBuilder.build_visualization(vis_config, hetero_g, label_mapping)
     except Exception:
         pytest.fail("build_visualization() raised ValueError unexpectedly!")

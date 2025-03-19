@@ -131,7 +131,7 @@ class VisualizationBuilder:
             filter_menu=vis_config.filter_menu,
             width=vis_config.width,
             height=vis_config.height,
-            **vis_config.pyvis_additional_kwargs
+            **vis_config.pyvis_additional_kwargs,
         )
         for edge in vis_config.all_edge_types:
             src_node_type, rel, trg_node_type = edge

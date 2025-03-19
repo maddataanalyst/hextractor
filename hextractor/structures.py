@@ -147,7 +147,6 @@ class VisualizationConfig(BaseModel):
     )
     pyvis_additional_kwargs: Dict[str, Any] = {}
 
-
     @property
     def all_node_types(self):
         return set(list(self.node_types) + list(self.node_types_to_colors.keys()))
