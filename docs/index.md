@@ -54,6 +54,6 @@ To run it, execute the following command in the terminal:
 ./setup_project.sh
 ```
 
-# Examples 
+# Examples
 
 You can find a dedicated package with examples in the `examples` directory. These examples demonstrate the usage of HeXtractor for various datasets and scenarios. Additionally in the `notebooks` directory, you will find Jupyter notebooks that provide detailed walkthroughs of the tool's functionality.

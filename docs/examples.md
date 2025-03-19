@@ -3,7 +3,7 @@
 ::: hextractor.examples
     options:
         show_symbol_type_toc: true
-        
+
 ## Data sources
 
 ### ::: hextractor.examples.data
