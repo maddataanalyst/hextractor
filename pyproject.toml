@@ -16,6 +16,9 @@ black = "^24.4.2"
 pandas = "^2.2.2"
 autoroot = "^1.0.0"
 pyvis = "^0.3.2"
+langchain-community = "^0.3.20"
+langchain-openai = "^0.3.9"
+langchain-experimental = "^0.3.4"
 
 [tool.poetry.group.research]
 optional = true

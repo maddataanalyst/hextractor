@@ -30,3 +30,11 @@
         options:
             show_symbol_type_toc: true
             heading: "Data Sources"
+
+
+## LangChain integration
+
+### :::hextractor.examples.langchain_integration
+        options:
+            show_symbol_type_toc: true
+            heading: "GraphDocuments"

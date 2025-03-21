@@ -31,6 +31,8 @@ HeXtractor is built using a robust stack of technologies, including:
 
 ### Manual Installation
 
+Visit the project [official repo](https://github.com/maddataanalyst/hextractor/)
+
 1. Ensure that Anaconda or Miniconda is installed.
 2. Create a new conda environment from the provided `environment.yml` file:
    ```bash
@@ -44,16 +46,6 @@ HeXtractor is built using a robust stack of technologies, including:
    ```bash
    poetry install --with dev --with research
    ```
-
-### Convenience Script
-
-The above operations can be automated using the provided shell script: `setup_project.sh`.
-
-To run it, execute the following command in the terminal:
-```bash
-./setup_project.sh
-```
-
 # Examples
 
 You can find a dedicated package with examples in the `examples` directory. These examples demonstrate the usage of HeXtractor for various datasets and scenarios. Additionally in the `notebooks` directory, you will find Jupyter notebooks that provide detailed walkthroughs of the tool's functionality.

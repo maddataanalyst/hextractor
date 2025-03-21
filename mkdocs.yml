@@ -8,6 +8,10 @@ plugins:
   - mermaid2
   - mkdocstrings:
       default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -31,4 +35,5 @@ nav:
       - Data Sources: reference/data_sources.md
       - Strustures: reference/structures.md
       - Extraction: reference/extraction.md
+      - Integrations: reference/integrations.md
       - Visualization: reference/visualization.md
