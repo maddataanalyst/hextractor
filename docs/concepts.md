@@ -45,6 +45,44 @@ Graph specifications are central to the operation of HeXtractor. They instruct t
 3. **Data Source Specifications**: Contain multiple node and edge type parameters, specifying the types of entities and relationships that can be found in the data.
 4. **Graph Specifications**: Contain multiple data source specifications, guiding HeXtractor in building a single graph from the provided data.
 
+
+## LangChain LLMs integration
+
+HeXtractor can be integrated with LangChain Language Models (LLMs) to enhance the extraction and analysis of structured data from unstructured text. By combining the capabilities of HeXtractor in transforming tabular data into graphs with LangChain's natural language processing capabilities, users can extract valuable insights from a wide range of data sources, including text documents, web pages, and social media content.
+
+In order to turn textual data into heterogeneous graph, the following steps are required:
+1. Confugure LLM compatible with `LLMGraphTransformer`.
+2. Extract GraphDocument from text.
+3. Pass GraphDocument to `convert_graph_document_to_hetero_data(graph_doc)` function.
+
+Example can be found below:
+
+
+```python
+base_url = "YOUR_BASE_URL"
+api_key = "YOUR_API_KEY"
+
+llm = ChatOpenAI(base_url=base_url, api_key=api_key)
+llm_graph_transformer = LLMGraphTransformer(llm=llm)
+```
+
+
+Example usage:
+
+```python
+text = """Filip Wójcik and Marcin Malczewski are data scientists, who developed HeXtractor. It is a library
+that helps in extracting heterogeneous knowledge graphs from various data source.
+Heterogeneous knowledge graphs are graphs that contain different types of nodes and edges."""
+
+docs = [Document(page_content=text)]
+
+data = await llm_graph_transformer.aconvert_to_graph_documents(docs)
+
+graph_doc = data[0]
+convert_graph_document_to_hetero_data(graph_doc)
+```
+
+
 ## Example Workflow
 
 An example workflow using HeXtractor involves the following steps:
