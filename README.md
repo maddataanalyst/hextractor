@@ -1,3 +1,5 @@
+![Logo](./docs/assets/logo.png)
+
 # Overview
 `HeXtractor` is a tool designed to automatically convert selected data in tabular format into a PyTorch Geometric heterogeneous graph. As research into graph neural networks (GNNs) expands, the importance of heterogeneous graphs grows. However, data often comes in tabular form, and manually transforming this data into graph format can be tedious and error-prone. `HeXtractor` aims to streamline this process, providing researchers and practitioners with a more efficient workflow.
 
@@ -19,7 +21,15 @@ Heterogeneous graphs are crucial in many applications of graph neural networks, 
 
 # Installation
 
-## Manual
+## From PyPI
+
+To install the latest version from PyPI run:
+
+```bash
+pip install hextractor
+```
+
+## Manual from source code
 
 1. Make sure, that you have Anaconda or Miniconda installed.
 2.Then, create new conda env from the provided environment.yml file:
@@ -40,3 +50,7 @@ poetry install --with dev --with research
 ```
 
 To use package, remember to activate the environment.
+
+# Documentation
+
+You can find an official, detailed documentation [here](https://hextractor.readthedocs.io/en/latest/).
