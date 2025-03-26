@@ -21,6 +21,14 @@ Heterogeneous graphs are crucial in many applications of graph neural networks, 
 
 # Installation
 
+## From PyPI
+
+To install the latest version from PyPI run:
+
+```bash
+pip install hextractor
+```
+
 ## Manual from source code
 
 1. Make sure, that you have Anaconda or Miniconda installed.
