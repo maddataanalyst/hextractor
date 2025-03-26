@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hextractor"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Filip <filip.wojcik@outlook.com>"]
 readme = "README.md"
