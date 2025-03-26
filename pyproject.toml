@@ -12,6 +12,8 @@ keywords = [ "graphs", "neural networks" ]
 homepage = "https://github.com/maddataanalyst/hextractor"
 repository = "https://github.com/maddataanalyst/hextractor"
 documentation = "https://hextractor.readthedocs.io/en/latest/"
+"Bug Tracker" = "https://github.com/maddataanalyst/hextractor/issues"
+
 
 
 [tool.poetry.dependencies]
