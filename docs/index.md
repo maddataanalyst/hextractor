@@ -1,3 +1,5 @@
+![Logo](./assets/logo.png)
+
 # Introduction
 
 HeXtractor is an advanced tool designed to facilitate the transformation of tabular data into heterogeneous graphs, specifically tailored for use with PyTorch Geometric. As the field of graph neural networks (GNNs) continues to evolve, the significance of heterogeneous graphs becomes increasingly apparent. However, the prevalent format for data remains tabular, necessitating a laborious and error-prone manual conversion process. HeXtractor addresses this challenge by automating the conversion, thereby streamlining the workflow for researchers and practitioners.

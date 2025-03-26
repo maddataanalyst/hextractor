@@ -1,6 +1,8 @@
 site_name: HeXtractor
 theme:
   name: material
+  logo: assets/logo.png
+  favicon: asserts/favicon.png
 
 plugins:
   - search
