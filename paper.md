@@ -1,5 +1,5 @@
 ---
-title: 'HeXtractor: A Tool for Building Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks'
+title: 'HeXtractor: Extracting Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks'
 tags:
   - Python
   - graph neural networks
@@ -62,8 +62,6 @@ HeXtractor supports both single-table and multi-table data processing. In a sing
 
 This results in a PyG-compatible `HeteroData` object, ready for downstream analysis.
 
-[]{label:tab:tabular_data}
-
 | Company ID | No. employees | Company revenue | Employee ID | Employee position | Employee Age |
 |------------|---------------|-----------------|-------------|-------------------|--------------|
 | 1          | 100           | 1000            | 0           | 0                 | 25           |
@@ -71,7 +69,7 @@ This results in a PyG-compatible `HeteroData` object, ready for downstream analy
 | ...        | ...           | ...             | ...         | ...               | ...          |
 | 2          | 5000          | 100000          | 6           | 4                 | 31           |
 
-Given the example in Table \ref{tab:tabular_data}, HeXtractor outputs the following heterogeneous graph:
+Given the exemplary table above, HeXtractor outputs the following heterogeneous graph:
 
 ```python
 HeteroData(
@@ -89,7 +87,7 @@ Graph visualization is interactive, with support for customized labels and color
 
 In **multi-table mode**, users define `GraphSpecs` to merge entity and relationship tables into a unified graph. This approach is well suited for complex data structures with multiple interconnected entities.
 
-For instance, if the dataset in Table \ref{tab:tabular_data} is split into separate `company`, `employee`, and `tags` tables, along with join tables for relationships (as shown in Figure \ref{fig:er_diagram}), HeXtractor will construct an equivalent `HeteroData` object—regardless of the original data layout.
+For instance, if the dataset from previous table is split into separate `company`, `employee`, and `tags` tables, along with join tables for relationships (as shown in Figure \ref{fig:er_diagram}), HeXtractor will construct an equivalent `HeteroData` object—regardless of the original data layout.
 
 ![Entity relationship diagram. \label{fig:er_diagram}](paper_figures/er_diagram.png){width=1000px height=1000px}
 
