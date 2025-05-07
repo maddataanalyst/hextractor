@@ -8,7 +8,7 @@ readme = "README.md"
 package-mode = true
 keywords = [ "graphs", "neural networks" ]
 
-[project.urls]
+[tool.poetry.urls]
 homepage = "https://github.com/maddataanalyst/hextractor"
 repository = "https://github.com/maddataanalyst/hextractor"
 documentation = "https://hextractor.readthedocs.io/en/latest/"
