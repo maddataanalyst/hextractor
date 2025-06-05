@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hextractor"
-version = "1.0.1"
+version = "1.0.2"
 description = "HeXtractor is a tool designed to automatically convert selected data in tabular format into a PyTorch Geometric heterogeneous graph. As research into graph neural networks (GNNs) expands, the importance of heterogeneous graphs grows. However, data often comes in tabular form, and manually transforming this data into graph format can be tedious and error-prone. HeXtractor aims to streamline this process, providing researchers and practitioners with a more efficient workflow."
 license = "BSD-3-Clause"
 authors = ["Filip <filip.wojcik@outlook.com>"]
