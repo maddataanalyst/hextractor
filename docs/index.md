@@ -31,6 +31,8 @@ HeXtractor is built using a robust stack of technologies, including:
 
 # Installation
 
+HeXtractor can be installed either from PyPI (recommended for most users) or from source code (recommended for developers or if you need the latest features).
+
 ## From PyPI
 
 To install the latest version from PyPI run:
@@ -41,7 +43,14 @@ pip install hextractor
 
 ## From Source Code
 
-You can install HeXtractor from source using either conda or any standard Python virtual environment. We use Poetry as our primary dependency manager because it provides robust dependency resolution, reproducible builds, and better package management.
+To install HeXtractor from source, you'll first need to clone the repository:
+
+```bash
+git clone https://github.com/maddataanalyst/hextractor.git
+cd hextractor
+```
+
+You can then install it using either conda or any standard Python virtual environment. We use Poetry as our primary dependency manager because it provides robust dependency resolution, reproducible builds, and better package management.
 
 ### Option 1: Using Conda
 
@@ -49,7 +58,6 @@ You can install HeXtractor from source using either conda or any standard Python
 ```bash
 # Create a new conda environment from the provided file
 conda env create -f environment.yml
-
 
 # Activate the environment
 conda activate hextractor
@@ -84,6 +92,7 @@ poetry install --with dev --with research
 ```
 
 Remember to activate your environment (conda or virtual environment) whenever you want to use HeXtractor.
+
 
 
 # Examples
