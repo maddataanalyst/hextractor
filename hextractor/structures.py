@@ -28,6 +28,7 @@ class NodeTypeParams(BaseModel):
                 raise ValueError("Multivalue source does not support attributes")
             if self.label_col:
                 raise ValueError("Multivalue source does not support target column")
+        return self
 
 
 class EdgeTypeParams(BaseModel):
@@ -48,6 +49,7 @@ class EdgeTypeParams(BaseModel):
     def check_multivalue(self):
         if self.multivalue_source and self.multivalue_target:
             raise ValueError("Multivalue source and target are not supported")
+        return self
 
 
 class NodeData:
@@ -195,3 +197,4 @@ class VisualizationConfig(BaseModel):
                 raise ValueError(f"Node type {source} is not selected")
             elif target not in self.all_node_types:
                 raise ValueError(f"Node type {target} is not selected")
+        return self

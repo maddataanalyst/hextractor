@@ -33,6 +33,7 @@ nav:
   - Home: index.md
   - Concepts: concepts.md
   - Examples: examples.md
+  - Contributing: contributing.md
   - API Reference:
       - Data Sources: reference/data_sources.md
       - Strustures: reference/structures.md

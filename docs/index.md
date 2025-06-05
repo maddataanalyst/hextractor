@@ -29,25 +29,72 @@ HeXtractor is built using a robust stack of technologies, including:
 4. **NetworkX**: Used for creating and managing complex graph structures.
 5. **PyVis**: Enables interactive visualization of graphs.
 
-## Installation
+# Installation
 
-### Manual Installation
+HeXtractor can be installed either from PyPI (recommended for most users) or from source code (recommended for developers or if you need the latest features).
 
-Visit the project [official repo](https://github.com/maddataanalyst/hextractor/)
+## From PyPI
 
-1. Ensure that Anaconda or Miniconda is installed.
-2. Create a new conda environment from the provided `environment.yml` file:
-   ```bash
-   conda env create -f environment.yml
-   ```
-3. Activate the environment:
-   ```bash
-   conda activate hextractor
-   ```
-4. Install the package with all dependencies:
-   ```bash
-   poetry install --with dev --with research
-   ```
+To install the latest version from PyPI run:
+
+```bash
+pip install hextractor
+```
+
+## From Source Code
+
+To install HeXtractor from source, you'll first need to clone the repository:
+
+```bash
+git clone https://github.com/maddataanalyst/hextractor.git
+cd hextractor
+```
+
+You can then install it using either conda or any standard Python virtual environment. We use Poetry as our primary dependency manager because it provides robust dependency resolution, reproducible builds, and better package management.
+
+### Option 1: Using Conda
+
+1. If you prefer Conda for environment management:
+```bash
+# Create a new conda environment from the provided file
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate hextractor
+
+# Install poetry inside the conda environment
+pip install poetry
+
+# Install the package with all dependencies
+poetry install --with dev --with research
+```
+
+### Option 2: Using Standard Python Virtual Environment
+
+1. Create and activate a virtual environment using your preferred method:
+```bash
+# Using venv (Python 3.3+)
+python -m venv hextractor-env
+source hextractor-env/bin/activate  # On Windows: hextractor-env\Scripts\activate
+
+# Or using virtualenv
+virtualenv hextractor-env
+source hextractor-env/bin/activate  # On Windows: hextractor-env\Scripts\activate
+```
+
+2. Install Poetry and the package:
+```bash
+# Install poetry
+pip install poetry
+
+# Install the package with all dependencies
+poetry install --with dev --with research
+```
+
+Remember to activate your environment (conda or virtual environment) whenever you want to use HeXtractor.
+
+
+
 # Examples
 
 You can find a dedicated package with examples in the `examples` directory. These examples demonstrate the usage of HeXtractor for various datasets and scenarios. Additionally in the `notebooks` directory, you will find Jupyter notebooks that provide detailed walkthroughs of the tool's functionality.
