@@ -86,3 +86,18 @@ Remember to activate your environment (conda or virtual environment) whenever yo
 # Documentation
 
 You can find an official, detailed documentation [here](https://hextractor.readthedocs.io/en/latest/).
+
+
+# Contributing and help
+
+Contributions are welcome, and they are greatly appreciated! Every little bit helps, and credit will always be given.
+
+You can contribute in many ways:
+1. Reporting bugs;
+2. Fixing bugs;
+3. Implementing features;
+4. Writing documentation;
+5. Submitting feedback.
+
+Detailed contribution and community guidelines can be found in the [CONTRIBUTING.rst](./CONTRIBUTING.rst) file.
+
