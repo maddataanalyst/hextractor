@@ -14,6 +14,7 @@ plugins:
         python:
           options:
             docstring_style: numpy
+            show_symbol_type_toc: true
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -28,7 +29,6 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:mermaid2.fence_mermaid
 
-
 nav:
   - Home: index.md
   - Concepts: concepts.md
@@ -36,7 +36,7 @@ nav:
   - Contributing: contributing.md
   - API Reference:
       - Data Sources: reference/data_sources.md
-      - Strustures: reference/structures.md
+      - Structures: reference/structures.md
       - Extraction: reference/extraction.md
       - Integrations: reference/integrations.md
       - Visualization: reference/visualization.md
