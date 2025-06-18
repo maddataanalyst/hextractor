@@ -136,7 +136,7 @@ In these contexts, HeXtractor facilitates the integration of structured and unst
 
 # Documentation
 
-Comprehensive documentation, including usage examples and full API reference, is available at: [the official website](https://hextractor.readthedocs.io/en/latest/)
+Comprehensive documentation, including usage examples and full API reference, is available at: [the official website](https://hextractor.readthedocs.io/en/latest/).
 
 # Acknowledgements
 
