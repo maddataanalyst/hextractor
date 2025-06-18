@@ -10,7 +10,6 @@ Consider a single graph that includes one data source specification: a data fram
 
 This example demonstrates the flexibility and precision of HeXtractor in transforming tabular data into a structured heterogeneous graph, facilitating advanced data analysis and visualization.
 
-
 ### Mermaid Diagram
 
 The following mermaid diagram illustrates the relationships between Graph Spec, Data Source Specs, Node Params, and Edge Params:
@@ -22,7 +21,6 @@ graph TD
     B -->|can have| D[Edge Params]
     B -->|includes| E[Data Source]
 ```
-
 
 ## Tabular Data to Heterogeneous Graphs
 
@@ -43,8 +41,7 @@ Graph specifications are central to the operation of HeXtractor. They instruct t
 1. **Node Type Parameters**: Define how to build specific, unique nodes (e.g., companies, employees).
 2. **Edge Type Parameters**: Define how to build specific, unique edges (e.g., company-employee relationships).
 3. **Data Source Specifications**: Contain multiple node and edge type parameters, specifying the types of entities and relationships that can be found in the data.
-4. **Graph Specifications**: Contain multiple data source specifications, guiding HeXtractor in building a single graph from the provided data.
-
+4. **Graph Specifications**: Contain multiple data source specifications, guiding HeXtractor in building a single graph from the provided data
 
 ## LangChain LLMs integration
 
@@ -57,7 +54,6 @@ In order to turn textual data into heterogeneous graph, the following steps are 
 
 Example can be found below:
 
-
 ```python
 base_url = "YOUR_BASE_URL"
 api_key = "YOUR_API_KEY"
@@ -65,7 +61,6 @@ api_key = "YOUR_API_KEY"
 llm = ChatOpenAI(base_url=base_url, api_key=api_key)
 llm_graph_transformer = LLMGraphTransformer(llm=llm)
 ```
-
 
 Example usage:
 
@@ -81,7 +76,6 @@ data = await llm_graph_transformer.aconvert_to_graph_documents(docs)
 graph_doc = data[0]
 convert_graph_document_to_hetero_data(graph_doc)
 ```
-
 
 ## Example Workflow
 
