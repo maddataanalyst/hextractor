@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Wójcik"
+    given-names: "Filip"
+  - family-names: "Malczewski"
+    given-names: "Marcin"
+title: "HeXtractor: Extracting Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks"
+version: "1.0.0"
+doi: 10.21105/joss.08057
+date-released: 2025-01-01
+url: "https://github.com/filip-wojcik/hextractor"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Wójcik"
+      given-names: "Filip"
+    - family-names: "Malczewski"
+      given-names: "Marcin"
+  doi: "10.21105/joss.08057"
+  journal: "Journal of Open Source Software"
+  month: 1
+  pages: "8057"
+  title: "HeXtractor: Extracting Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks"
+  issue: 110
+  volume: 10
+  year: 2025
+  url: "https://doi.org/10.21105/joss.08057"

@@ -3,6 +3,10 @@
 # Overview
 `HeXtractor` is a tool designed to automatically convert selected data in tabular format into a PyTorch Geometric heterogeneous graph. As research into graph neural networks (GNNs) expands, the importance of heterogeneous graphs grows. However, data often comes in tabular form, and manually transforming this data into graph format can be tedious and error-prone. `HeXtractor` aims to streamline this process, providing researchers and practitioners with a more efficient workflow.
 
+This package has been reviewed and published in the Journal of Open Source Software (JOSS). You can find the paper [here](https://joss.theoj.org/papers/10.21105/joss.08057).
+
+> Wójcik et al., (2025). HeXtractor: Extracting Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks. Journal of Open Source Software, 10(110), 8057, https://doi.org/10.21105/joss.08057
+
 # Features
 1. Automatic Conversion: Converts tabular data into heterogeneous graphs suitable for GNNs.
 2. Support for Multiple Formats: Handles various tabular data formats with ease.
@@ -11,6 +15,16 @@
 
 # Why HeXtractor?
 Heterogeneous graphs are crucial in many applications of graph neural networks, yet creating them from tabular data manually is often cumbersome. `HeXtractor` automates this process, allowing researchers to focus on developing and training their models instead of data preprocessing.
+
+**Key Applications:**
+
+1. **Transform single tabular datasets** into heterogeneous graph structures.
+2. **Transform multiple tables** into a heterogeneous graph.
+3. **Leverage Large Language Models (LLMs)** to identify and extract semantic relationships from text, converting them into heterogeneous graph representations.
+
+
+![Use cases](./docs/assets/hextractor_use_cases.png)
+
 
 # Technologies
 1. `Python`: The primary programming language used for HeXtractor.

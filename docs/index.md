@@ -4,6 +4,10 @@
 
 HeXtractor is an advanced tool designed to facilitate the transformation of tabular data into heterogeneous graphs, specifically tailored for use with PyTorch Geometric. As the field of graph neural networks (GNNs) continues to evolve, the significance of heterogeneous graphs becomes increasingly apparent. However, the prevalent format for data remains tabular, necessitating a laborious and error-prone manual conversion process. HeXtractor addresses this challenge by automating the conversion, thereby streamlining the workflow for researchers and practitioners.
 
+This package has been reviewed and published in the Journal of Open Source Software (JOSS). You can find the paper [here](https://joss.theoj.org/papers/10.21105/joss.08057).
+
+> Wójcik et al., (2025). HeXtractor: Extracting Heterogeneous Graphs from Structured and Textual Data for Graph Neural Networks. Journal of Open Source Software, 10(110), 8057, https://doi.org/10.21105/joss.08057
+
 ## Goals of the Project
 
 The primary objective of HeXtractor is to provide a seamless and efficient method for converting tabular data into heterogeneous graphs. This automation aims to reduce the time and effort required for data preprocessing, allowing users to focus on the development and training of their GNN models. By integrating with PyTorch Geometric, HeXtractor ensures that the generated graphs are immediately usable within this framework, further enhancing the user experience.
@@ -18,6 +22,15 @@ The primary objective of HeXtractor is to provide a seamless and efficient metho
 ## Why HeXtractor?
 
 Heterogeneous graphs are pivotal in numerous applications of graph neural networks. The manual creation of these graphs from tabular data is often cumbersome and prone to errors. HeXtractor automates this process, enabling researchers to concentrate on model development and training rather than data preprocessing. This automation not only enhances efficiency but also improves the accuracy and reliability of the resulting graphs.
+
+**Key Applications:**
+
+1. **Transform single tabular datasets** into heterogeneous graph structures.
+2. **Transform multiple tables** into a heterogeneous graph.
+3. **Leverage Large Language Models (LLMs)** to identify and extract semantic relationships from text, converting them into heterogeneous graph representations.
+
+
+![Use cases](./assets/hextractor_use_cases.png)
 
 ## Technologies
 
